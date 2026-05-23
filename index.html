@@ -964,8 +964,8 @@ var data=getMadrasah();
 var rows='';
 data.forEach(function(m,i){
 rows+='<tr><td>'+(i+1)+'</td><td>'+escHtml(m.nama)+'</td><td>'+escHtml(m.npsn)+'</td><td>'+escHtml(m.alamat)+'</td><td>'+escHtml(m.kabupaten)+'</td><td>'+escHtml(m.kepala)+'</td><td>';
-rows+='<button class="btn btn-sm btn-secondary" onclick="editMadrasah('+i+')">&#9998;</button> ';
-rows+='<button class="btn btn-sm btn-danger" onclick="deleteMadrasah('+i+')">&#128465;</button>';
+rows+='<div style="display:flex;gap:4px;align-items:center;white-space:nowrap"><button class="btn btn-sm btn-secondary" style="padding:3px 7px;font-size:.7rem" onclick="editMadrasah('+i+')">&#9998;</button>';
+rows+='<button class="btn btn-sm btn-danger" style="padding:3px 7px;font-size:.7rem" onclick="deleteMadrasah('+i+')">&#128465;</button></div>';
 rows+='</td></tr>';
 });
 var html='<div class="card">';
