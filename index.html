@@ -8,6 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>Aplikasi Supervisi Pembelajaran</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -944,7 +945,10 @@ rows+='</td></tr>';
 var html='<div class="card">';
 html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">';
 html+='<h2>Data Madrasah</h2>';
-html+='<button class="btn btn-primary" onclick="showMadrasahModal()">+ Tambah Madrasah</button></div>';
+html+='<button class="btn btn-primary" onclick="showMadrasahModal()">+ Tambah Madrasah</button> ';
+html+='<button class="btn btn-info" onclick="importMadrasahExcel()">&#128196; Import Excel</button> ';
+html+='<button class="btn btn-secondary" onclick="downloadTemplateMadrasah()">&#128229; Template Excel</button></div>';
+html+='<input type="file" id="importMadrasahFile" accept=".xlsx,.xls" style="display:none" onchange="handleImportMadrasah(event)">';
 if(data.length===0){html+='<div class="empty-state"><p>Belum ada data madrasah.</p></div>';}
 else{
 html+='<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>No</th><th>Nama Madrasah</th><th>NPSN</th><th>Alamat</th><th>Kab/Kota</th><th>Kepala Madrasah</th><th>Aksi</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
@@ -992,6 +996,51 @@ saveMadrasah(data);closeModal();render();
 function editMadrasah(idx){showMadrasahModal(idx)}
 function deleteMadrasah(idx){if(!confirm('Hapus data madrasah ini?'))return;var data=getMadrasah();data.splice(idx,1);saveMadrasah(data);render();}
 function closeModal(){var mc=document.getElementById('modal-container');if(mc)mc.innerHTML='';}
+
+// ===== IMPORT EXCEL MADRASAH =====
+function importMadrasahExcel(){document.getElementById('importMadrasahFile').click();}
+function handleImportMadrasah(event){
+var file=event.target.files[0];
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){
+try{
+var data=new Uint8Array(e.target.result);
+var workbook=XLSX.read(data,{type:'array'});
+var sheet=workbook.Sheets[workbook.SheetNames[0]];
+var json=XLSX.utils.sheet_to_json(sheet,{defval:''});
+if(json.length===0){alert('File kosong atau format tidak sesuai');return;}
+var existing=getMadrasah();
+var count=0;
+json.forEach(function(row){
+var nama=(row['Nama Madrasah']||row['nama']||row['NAMA MADRASAH']||'').toString().trim();
+if(!nama)return;
+var obj={
+nama:nama,
+npsn:(row['NPSN']||row['npsn']||'').toString().trim(),
+alamat:(row['Alamat']||row['alamat']||row['ALAMAT']||'').toString().trim(),
+kabupaten:(row['Kabupaten/Kota']||row['kabupaten']||row['Kab/Kota']||row['KABUPATEN']||'').toString().trim(),
+kepala:(row['Kepala Madrasah']||row['kepala']||row['KEPALA MADRASAH']||'').toString().trim(),
+nipKepala:(row['NIP Kepala']||row['nipKepala']||row['NIP']||'').toString().trim()
+};
+var duplicate=existing.some(function(m){return m.nama.toLowerCase()===obj.nama.toLowerCase();});
+if(!duplicate){existing.push(obj);count++;}
+});
+if(existing.length>30){alert('Maksimal 30 madrasah. Hanya '+(30-getMadrasah().length)+' yang bisa ditambahkan.');existing=existing.slice(0,30);}
+saveMadrasah(existing);
+alert('Berhasil import '+count+' madrasah!');
+render();
+}catch(err){alert('Gagal membaca file: '+err.message);}
+};
+reader.readAsArrayBuffer(file);
+event.target.value='';
+}
+function downloadTemplateMadrasah(){
+var ws=XLSX.utils.aoa_to_sheet([['Nama Madrasah','NPSN','Alamat','Kabupaten/Kota','Kepala Madrasah','NIP Kepala'],['MAS Contoh','12345678','Jl. Contoh No.1','Kab. Jember','Ahmad, S.Pd','197001012000031001']]);
+var wb=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb,ws,'Data Madrasah');
+XLSX.writeFile(wb,'Template_Data_Madrasah.xlsx');
+}
 
 // ===== DATA GURU =====
 function renderGuruPage(){
