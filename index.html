@@ -20,6 +20,11 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 .sidebar-menu li{padding:12px 20px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;font-size:.9rem}
 .sidebar-menu li:hover{background:rgba(14,165,233,.2)}
 .sidebar-menu li.active{background:linear-gradient(135deg,rgba(14,165,233,.3),rgba(13,148,136,.3));border-left:3px solid #0ea5e9}
+.submenu-toggle{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.submenu{list-style:none;padding:0;margin:0;overflow:hidden;transition:max-height .3s ease}
+.submenu li{padding:10px 20px 10px 36px;font-size:.82rem}
+.submenu.hidden{max-height:0;overflow:hidden}
+.submenu.open{max-height:500px}
 .main-content{margin-left:250px;flex:1;padding:20px;min-height:100vh}
 .mobile-toggle{display:none;position:fixed;top:15px;left:15px;z-index:200;background:linear-gradient(135deg,#0ea5e9,#0d9488);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:1.2rem;cursor:pointer}
 @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0}.mobile-toggle{display:block}}
@@ -326,6 +331,12 @@ sucEl.style.display='block';
 setTimeout(function(){showLogin()},1500);
 }
 
+function toggleSubmenu(id){
+var el=document.getElementById(id);
+if(!el)return;
+if(el.classList.contains('open')){el.classList.remove('open');el.classList.add('hidden');}
+else{el.classList.remove('hidden');el.classList.add('open');}
+}
 function backupData(){
 var keys=['jember_supervisi_users','jember_supervisi_madrasah','jember_supervisi_guru','jember_supervisi_kokurikuler','jember_supervisi_ekstrakurikuler','jember_supervisi_iklim_madrasah'];
 var backup={};
