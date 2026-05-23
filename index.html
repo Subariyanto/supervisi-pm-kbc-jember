@@ -1113,6 +1113,7 @@ html+='<div class="form-group"><label>Jabatan</label><input type="text" id="pJab
 html+='<div class="form-group"><label>Pangkat/Golongan</label><input type="text" id="pPangkat" value="'+escHtml(p.pangkat||'')+'"></div>';
 html+='<div class="form-group"><label>Instansi</label><input type="text" id="pInstansi" value="'+escHtml(p.instansi||'')+'"></div>';
 html+='<div class="form-group"><label>Kabupaten/Kota</label><input type="text" id="pKabupaten" value="'+escHtml(p.kabupaten||'')+'"></div>';
+html+='<div class="form-group"><label>Tempat Tugas</label><input type="text" id="pTempatTugas" value="'+escHtml(p.tempatTugas||'')+'" placeholder="Contoh: KKMA 04"></div>';
 html+='</div>';
 html+='<div style="margin-top:15px"><button class="btn btn-primary" onclick="updatePengawas()">\ud83d\udcbe Simpan</button></div>';
 html+='</div>';
@@ -1129,7 +1130,8 @@ nip:document.getElementById('pNip')?document.getElementById('pNip').value:'',
 jabatan:document.getElementById('pJabatan')?document.getElementById('pJabatan').value:'',
 pangkat:document.getElementById('pPangkat')?document.getElementById('pPangkat').value:'',
 instansi:document.getElementById('pInstansi')?document.getElementById('pInstansi').value:'',
-kabupaten:document.getElementById('pKabupaten')?document.getElementById('pKabupaten').value:''
+kabupaten:document.getElementById('pKabupaten')?document.getElementById('pKabupaten').value:'',
+tempatTugas:document.getElementById('pTempatTugas')?document.getElementById('pTempatTugas').value:''
 };
 savePengawas(p);
 alert('Data pengawas berhasil disimpan!');
@@ -3445,8 +3447,7 @@ html+='<h1>LAPORAN</h1>';
 html+='<h1>SUPERVISI PEMBELAJARAN</h1>';
 html+='<h2>Tahun Ajaran 2025-2026</h2>';
 html+='<br><br><br>';
-html+='<p style="text-align:center;font-size:14pt"><b>'+(firstMadrasah.nama||'Madrasah ...............................')+'</b></p>';
-html+='<p style="text-align:center">Alamat: '+(firstMadrasah.alamat||'..........................................')+'</p>';
+html+='<p style="text-align:center;font-size:14pt"><b>'+(pengawas.tempatTugas||'...............................')+'</b></p>';
 html+='<br><br><br><br>';
 html+='<p style="text-align:center">Disusun oleh:</p>';
 html+='<p style="text-align:center;font-size:13pt"><b>'+(pengawas.nama||'...............................')+'</b></p>';
@@ -3458,7 +3459,7 @@ html+='</div>';
 html+='<div class="page-break"></div>';
 html+='<div style="page-break-inside:avoid">';
 html+='<h2>KATA PENGANTAR</h2>';
-html+='<p>Puji syukur kehadirat Allah SWT atas rahmat dan karunia-Nya sehingga laporan hasil pelaksanaan supervisi pembelajaran berbasis Pembelajaran Mendalam (PM) dan Kurikulum Berbasis Cinta (KBC) di Madrasah '+(firstMadrasah.nama||'...........')+' dapat diselesaikan dengan baik.</p>';
+html+='<p>Puji syukur kehadirat Allah SWT atas rahmat dan karunia-Nya sehingga laporan hasil pelaksanaan supervisi pembelajaran berbasis Pembelajaran Mendalam (PM) dan Kurikulum Berbasis Cinta (KBC) di '+(pengawas.tempatTugas||'...........')+' dapat diselesaikan dengan baik.</p>';
 html+='<p>Laporan ini disusun sebagai bentuk pertanggungjawaban pelaksanaan supervisi akademik dalam rangka penjaminan mutu pembelajaran yang berorientasi pada pembelajaran bermakna, penguatan karakter, pengembangan kompetensi abad ke-21, serta penumbuhan budaya belajar yang humanis, reflektif, dan berlandaskan nilai-nilai cinta.</p>';
 html+='<p>Pelaksanaan supervisi difokuskan pada keterlaksanaan pembelajaran yang mendorong murid berpikir kritis, kreatif, kolaboratif, komunikatif, reflektif, serta mengintegrasikan nilai cinta kepada Tuhan, sesama, lingkungan, bangsa, dan ilmu pengetahuan dalam proses pembelajaran.</p>';
 html+='<p>Kami berharap laporan ini dapat menjadi bahan refleksi, penguatan mutu layanan pendidikan, serta dasar penyusunan tindak lanjut peningkatan kompetensi guru dan kualitas pembelajaran di madrasah.</p>';
