@@ -14,17 +14,19 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);min-height:100vh;color:#333}
 .app-layout{display:flex;min-height:100vh}
-.sidebar{width:250px;background:#0a1128;padding:20px 0;color:#fff;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s}
+.sidebar{width:250px;background:rgba(15,32,39,.97);padding:20px 0;color:#fff;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s}
 .sidebar h2{padding:15px 20px;font-size:1.2rem;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
 .sidebar-menu{list-style:none}
 .sidebar-menu li{padding:12px 20px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;font-size:.9rem}
 .sidebar-menu li:hover{background:rgba(14,165,233,.2)}
 .sidebar-menu li.active{background:linear-gradient(135deg,rgba(14,165,233,.3),rgba(13,148,136,.3));border-left:3px solid #0ea5e9}
-.submenu-toggle{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.submenu{list-style:none;padding:0;margin:0;overflow:hidden;transition:max-height .3s ease}
-.submenu li{padding:10px 20px 10px 36px;font-size:.82rem}
-.submenu.hidden{max-height:0;overflow:hidden}
-.submenu.open{max-height:500px}
+.submenu-toggle{cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;font-size:.9rem;color:#fff;transition:all .2s}
+.submenu-toggle:hover{background:rgba(14,165,233,.2)}
+.submenu{list-style:none;max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0;margin:0}
+.submenu.open{max-height:300px}
+.submenu li{padding:10px 20px 10px 35px;font-size:.85rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85)}
+.submenu li:hover{background:rgba(14,165,233,.15)}
+.submenu li.active{background:linear-gradient(135deg,rgba(14,165,233,.2),rgba(13,148,136,.2));border-left:3px solid #0ea5e9}
 .main-content{margin-left:250px;flex:1;padding:20px;min-height:100vh}
 .mobile-toggle{display:none;position:fixed;top:15px;left:15px;z-index:200;background:linear-gradient(135deg,#0ea5e9,#0d9488);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:1.2rem;cursor:pointer}
 @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0}.mobile-toggle{display:block}}
@@ -145,46 +147,44 @@ canvas{max-width:100%;margin:20px 0}
 <div class="auth-overlay" id="authOverlay" style="display:none">
 <div class="auth-card" id="authCard"></div>
 </div>
-<input type="file" id="restoreFileInput" accept=".json" style="display:none" onchange="restoreData(this)">
 <button class="mobile-toggle no-print" onclick="toggleSidebar()">&#9776;</button>
 <div class="app-layout" id="appLayout" style="display:none">
 <nav class="sidebar" id="sidebar">
-<h2 style="line-height:1.3">SUPERVISI PM-KBC<br><span style="font-size:.5em;white-space:nowrap">POKJAWAS MADRASAH JEMBER</span></h2>
+<h2 style="line-height:1.3">SUPERVISI PM-KBC<br><span style="font-size:.75em">POKJAWAS MADRASAH JEMBER</span></h2>
 <div class="sidebar-user" id="sidebarUser"></div>
 <ul class="sidebar-menu">
 <li class="active" onclick="navigate('dashboard')" data-nav="dashboard">&#128202; Dashboard</li>
 <li onclick="navigate('pengawas')" data-nav="pengawas">&#128100; Data Pengawas</li>
 <li onclick="navigate('madrasah')" data-nav="madrasah">&#127979; Data Madrasah</li>
 <li onclick="navigate('guru')" data-nav="guru">&#128104;&#8205;&#127891; Data Guru</li>
-<li onclick="toggleSubmenu('sub-supervisi')" class="submenu-toggle">&#128221; Supervisi Pembelajaran</li>
-<ul class="submenu hidden" id="sub-supervisi">
-<li onclick="navigate('supervisi')" data-nav="supervisi">&#128221; Supervisi</li>
+<li class="submenu-toggle" onclick="toggleSubmenu('sub-supervisi')">&#128221; Supervisi Pembelajaran &#9662;</li>
+<ul class="submenu" id="sub-supervisi">
+<li onclick="navigate('supervisi')" data-nav="supervisi">&#128221; Input Supervisi</li>
 <li onclick="navigate('rekap')" data-nav="rekap">&#128202; Rekap Hasil</li>
 <li onclick="navigate('cetak')" data-nav="cetak">&#128424; Cetak Hasil</li>
 <li onclick="navigate('laporan')" data-nav="laporan">&#128196; Laporan</li>
 </ul>
-<li onclick="toggleSubmenu('sub-kokurikuler')" class="submenu-toggle">&#128203; Kokurikuler</li>
-<ul class="submenu hidden" id="sub-kokurikuler">
-<li onclick="navigate('kokurikuler')" data-nav="kokurikuler">&#128203; Instrumen</li>
+<li class="submenu-toggle" onclick="toggleSubmenu('sub-kokurikuler')">&#128203; Kokurikuler &#9662;</li>
+<ul class="submenu" id="sub-kokurikuler">
+<li onclick="navigate('kokurikuler')" data-nav="kokurikuler">&#128221; Input Kokurikuler</li>
 <li onclick="navigate('rekap-kokurikuler')" data-nav="rekap-kokurikuler">&#128202; Rekap</li>
 <li onclick="navigate('laporan-kokurikuler')" data-nav="laporan-kokurikuler">&#128196; Laporan</li>
 </ul>
-<li onclick="toggleSubmenu('sub-ekstrakurikuler')" class="submenu-toggle">&#127942; Ekstrakurikuler</li>
-<ul class="submenu hidden" id="sub-ekstrakurikuler">
-<li onclick="navigate('ekstrakurikuler')" data-nav="ekstrakurikuler">&#127942; Instrumen</li>
+<li class="submenu-toggle" onclick="toggleSubmenu('sub-ekstrakurikuler')">&#128203; Ekstrakurikuler &#9662;</li>
+<ul class="submenu" id="sub-ekstrakurikuler">
+<li onclick="navigate('ekstrakurikuler')" data-nav="ekstrakurikuler">&#128221; Input Ekstrakurikuler</li>
 <li onclick="navigate('rekap-ekstrakurikuler')" data-nav="rekap-ekstrakurikuler">&#128202; Rekap</li>
 <li onclick="navigate('laporan-ekstrakurikuler')" data-nav="laporan-ekstrakurikuler">&#128196; Laporan</li>
 </ul>
-<li onclick="toggleSubmenu('sub-iklim')" class="submenu-toggle">&#127979; Iklim Madrasah</li>
-<ul class="submenu hidden" id="sub-iklim">
-<li onclick="navigate('iklim-madrasah')" data-nav="iklim-madrasah">&#127979; Instrumen</li>
+<li class="submenu-toggle" onclick="toggleSubmenu('sub-iklim')">&#127979; Iklim Madrasah &#9662;</li>
+<ul class="submenu" id="sub-iklim">
+<li onclick="navigate('iklim-madrasah')" data-nav="iklim-madrasah">&#128221; Input Iklim Madrasah</li>
 <li onclick="navigate('rekap-iklim-madrasah')" data-nav="rekap-iklim-madrasah">&#128202; Rekap</li>
 <li onclick="navigate('laporan-iklim-madrasah')" data-nav="laporan-iklim-madrasah">&#128196; Laporan</li>
 </ul>
 <li onclick="navigate('ubah-password')" data-nav="ubah-password">&#128274; Ubah Password</li>
-<li onclick="backupData()" style="border-top:1px solid rgba(255,255,255,.1);margin-top:10px">&#128190; Backup Data</li>
-<li onclick="document.getElementById('restoreFileInput').click()">&#128194; Restore Data</li>
-<li onclick="doLogout()" style="color:#f87171">&#128682; Logout</li>
+<li onclick="navigate('backup-restore')" data-nav="backup-restore">&#128190; Export/Backup &amp; Restore</li>
+<li onclick="doLogout()" style="border-top:1px solid rgba(255,255,255,.1);margin-top:10px;color:#f87171">&#128682; Logout</li>
 </ul>
 <p style="padding:10px 20px;font-size:.6rem;color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.1);white-space:normal;line-height:1.4;text-align:center">Aplikasi ini dibuat oleh : Subariyanto<br>Ketua Pokjawas Madrasah Kab. Jember</p>
 </nav>
@@ -343,50 +343,6 @@ sucEl.style.display='block';
 setTimeout(function(){showLogin()},1500);
 }
 
-function toggleSubmenu(id){
-var el=document.getElementById(id);
-if(!el)return;
-if(el.classList.contains('open')){el.classList.remove('open');el.classList.add('hidden');}
-else{el.classList.remove('hidden');el.classList.add('open');}
-}
-function backupData(){
-var keys=['jember_supervisi_users','jember_supervisi_madrasah','jember_supervisi_guru','jember_supervisi_kokurikuler','jember_supervisi_ekstrakurikuler','jember_supervisi_iklim_madrasah'];
-var backup={};
-keys.forEach(function(k){
-var val=localStorage.getItem(k);
-if(val)backup[k]=JSON.parse(val);
-});
-backup._backupDate=new Date().toISOString();
-backup._appVersion='supervisi-pm-kbc-jember';
-var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-var url=URL.createObjectURL(blob);
-var a=document.createElement('a');
-a.href=url;
-a.download='backup-supervisi-'+new Date().toISOString().slice(0,10)+'.json';
-a.click();
-URL.revokeObjectURL(url);
-alert('Backup berhasil didownload!');
-}
-function restoreData(input){
-if(!input.files||!input.files[0])return;
-var file=input.files[0];
-var reader=new FileReader();
-reader.onload=function(e){
-try{
-var backup=JSON.parse(e.target.result);
-if(!backup._appVersion){alert('File bukan backup yang valid');return;}
-if(!confirm('Restore data dari backup tanggal '+( backup._backupDate||'tidak diketahui').slice(0,10)+'?\n\nData saat ini akan ditimpa dengan data dari backup.'))return;
-var keys=['jember_supervisi_users','jember_supervisi_madrasah','jember_supervisi_guru','jember_supervisi_kokurikuler','jember_supervisi_ekstrakurikuler','jember_supervisi_iklim_madrasah'];
-keys.forEach(function(k){
-if(backup[k]){localStorage.setItem(k,JSON.stringify(backup[k]));}
-});
-alert('Restore berhasil! Halaman akan di-refresh.');
-location.reload();
-}catch(err){alert('Gagal membaca file backup: '+err.message);}
-};
-reader.readAsText(file);
-input.value='';
-}
 function doLogout(){
 if(!confirm('Yakin ingin logout?'))return;
 clearSession();
@@ -866,9 +822,14 @@ render();
 }
 
 // ===== NAVIGATION =====
+function toggleSubmenu(id){
+var el=document.getElementById(id);
+if(el)el.classList.toggle('open');
+}
 function navigate(view){
 state.view=view;state.editId=null;
 document.querySelectorAll('.sidebar-menu li').forEach(function(li){li.classList.toggle('active',li.dataset.nav===view)});
+document.querySelectorAll('.submenu li').forEach(function(li){li.classList.toggle('active',li.dataset.nav===view)});
 if(window.innerWidth<768)document.getElementById('sidebar').classList.remove('open');
 if(view==='supervisi'&&(!state.formData||!state.formData.identitas||!state.formData.identitas.namaGuru)){newForm();return;}
 render();
@@ -901,6 +862,7 @@ case 'laporan-kokurikuler':app.innerHTML=renderLaporanKokurikulerPage();break;
 case 'laporan-ekstrakurikuler':app.innerHTML=renderLaporanEkstrakurikulerPage();break;
 case 'laporan-iklim-madrasah':app.innerHTML=renderLaporanIklimMadrasahPage();break;
 case 'ubah-password':app.innerHTML=renderUbahPassword();break;
+case 'backup-restore':app.innerHTML=renderBackupRestore();break;
 default:app.innerHTML=renderDashboard();
 }
 var titleEl=document.getElementById('pageTitle');
@@ -2865,24 +2827,28 @@ showEditIndikator('ekstrakurikuler');
 ﻿// ===== IKLIM MADRASAH =====
 const IKLIM_MADRASAH_KEY='jember_supervisi_iklim_madrasah';
 const IKLIM_MADRASAH=[
-'Iklim pembelajaran mencerminkan penghargaan terhadap keberagaman melalui interaksi yang saling menghormati dan praktik pembelajaran yang inklusif berbasis nilai cinta',
+'Madrasah mempunyai mekanisme penyelenggaraan madrasah Aman, Nyaman, Ramah, Menyenangkan dan Sejahtera',
+'Iklim pembelajaran mencerminkan penghargaan terhadap keberagaman',
 'Relasi antar warga madrasah dibangun atas dasar kasih sayang, empati, dan saling mendukung sebagai wujud cinta diri dan sesama',
 'Madrasah memberikan ruang, kesempatan, dan perlakuan yang adil bagi semua tanpa diskriminasi gender',
-'Madrasah memfasilitasi iklim lingkungan belajar yang aman, nyaman, ramah, menyenangkan dan sejahtera',
+'Madrasah memfasilitasi sarana prasarana iklim lingkungan belajar yang Aman, Nyaman, Ramah, Menyenangkan dan Sejahtera',
 'Madrasah responsif terhadap kebutuhan murid berkebutuhan khusus melalui kebijakan dan layanan yang adaptif',
-'Madrasah membangun budaya aman melalui pencegahan dan penanganan perundungan secara sistematis dan edukatif',
+'Madrasah membangun budaya aman melalui pencegahan dan penanganan perundungan dan kekerasan',
 'Lingkungan madrasah tidak berpotensi membahayakan keselamatan warga madrasah dan memiliki kesiapsiagaan terhadap kondisi darurat',
-'Muatan pembelajaran membangun kesadaran tentang pola hidup bersih dan sehat sebagai wujud cinta diri dan alam'
+'Muatan pembelajaran membangun kesadaran tentang pola hidup bersih dan sehat sebagai wujud cinta diri dan alam',
+'Madrasah melakukan evaluasi untuk mengukur dampak KBC pada perilaku dan iklim madrasah'
 ];
 const PENGGALIAN_IKLIM_MADRASAH=[
-'<b>Pengamatan:</b><ul><li>Guru membangun sikap positif terhadap keberagaman melalui pembelajaran</li><li>Guru memberi ruang semua siswa untuk berpendapat</li><li>Guru dan siswa saling menghormati perbedaan pendapat, kebiasaan, dan identitas</li></ul><b>Telaah dokumen:</b><ul><li>KSP yang memuat kebijakan dan pembelajaran tentang keberagaman</li><li>RPP intra/kokurikuler yang memuat penguatan keberagaman dan toleransi</li><li>Program madrasah pendukung yang turut membangun sikap positif keberagaman</li></ul>',
-'<b>Pengamatan:</b><ul><li>Guru dan tenaga kependidikan menyapa siswa dengan senyum dan bahasa santun</li><li>Siswa tidak segan meminta bantuan kepada guru dan guru respon terhadap kesulitan siswa</li><li>Siswa saling membantu teman yang belum paham materi tanpa diminta</li></ul><b>Telaah dokumen:</b><ul><li>Program pembiasaan di madrasah</li><li>Bukti pelaksanaan pembiasaan di madrasah</li></ul>',
-'<b>Pengamatan dan wawancara:</b><ul><li>Guru membangun kesadaran dalam kesetaraan gender dalam kegiatan pembelajaran</li><li>Madrasah memberikan kesempatan yang sama kepada murid laki-laki dan perempuan</li><li>Madrasah memberikan hak yang sama kepada guru dan tendik untuk terlibat dalam organisasi dan kegiatan</li></ul><b>Telaah dokumen:</b><ul><li>KSP yang memuat kebijakan layanan kesetaraan gender</li><li>RPP memuat membangun kesetaraan gender</li><li>Struktur kelas, OSIM, struktur madrasah</li><li>Dokumentasi kegiatan yang relevan</li></ul>',
-'<b>Pengamatan:</b><ul><li>Lingkungan madrasah bersih, sehat, tertib, ruang kelas bersih, rapi, pencahayaan dan sirkulasi udara cukup</li><li>Guru, tenaga kependidikan, dan murid saling menyapa dan tersenyum</li><li>Murid belajar dengan antusias dan ekspresi gembira</li><li>Terbangun budaya saling menolong dan empati</li></ul>',
-'<b>Telaah dokumen:</b><ul><li>Tersedianya kebijakan madrasah dalam mengakomodasi anak berkebutuhan khusus</li><li>Tersedianya Program Pembelajaran Individual (PPI/IEP) bagi anak berkebutuhan khusus</li></ul>',
-'<b>Telaah dokumen:</b><ul><li>Tersedia SK TPPK (Tim pencegahan dan penanganan perundungan/kekerasan)</li><li>Tersedianya SOP/alur pelaporan dan penanganan kasus yang jelas dan mudah dipahami</li><li>Sosialisasi rutin tentang anti-perundungan dan kekerasan kepada siswa</li><li>Terdapat catatan penanganan kasus dan tindak lanjut</li></ul>',
-'<b>Pengamatan:</b><ul><li>Lingkungan tertata rapi, ada perawatan rutin, dan tidak ditemukan potensi bahaya fisik</li><li>Perlengkapan keselamatan tanggap bencana tersedia dan diketahui warga madrasah</li></ul><b>Telaah dokumen:</b><ul><li>Tersedia dokumentasi simulasi kebencanaan</li></ul>',
-'<b>Pengamatan:</b><ul><li>Pembiasaan cuci tangan, memilah sampah, atau menjaga kebersihan kelas</li><li>Pembiasaan menjaga kebersihan sebelum dan sesudah belajar</li><li>Sarana kesehatan tersedia dan dimanfaatkan</li><li>Kantin atau area jualan tampak bersih dan sehat</li></ul><b>Telaah dokumen:</b><ul><li>Program PHBS</li><li>Program dan dokumentasi menjaga kebugaran bagi murid, guru dan tendik</li><li>Laporan terlaksananya kegiatan pencegahan adiksi murid</li><li>Laporan terlaksananya kegiatan membangun kesehatan reproduksi murid</li></ul>'
+'<b>Melalui telaah dokumen tentang:</b><ul><li>KSP memuat program pembiasaan Penguatan tata kelola (kesepakatan kelas, tata tertib, kode etik)</li><li>Tersedia SOP layanan pengaduan dan penanganan masalah</li><li>Tersedia program pembiasaan yang mendukung suasana aman, nyaman, ramah, menyenangkan dan sejahtera</li></ul>',
+'<b>Melalui pengamatan tampak:</b><ul><li>Guru membangun sikap positif terhadap keberagaman melalui keteladanan dan pembelajaran</li><li>Guru memberi ruang semua siswa untuk berpendapat tanpa membedakan latar belakang</li><li>Guru dan siswa saling menghormati perbedaan pendapat, kebiasaan, dan identitas</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>KSP yang memuat kebijakan dan pembelajaran tentang keberagaman</li><li>RPP intra/kokurikuler yang memuat penguatan keberagaman dan toleransi</li></ul>',
+'<b>Melalui pengamatan bahwa:</b><ul><li>Guru, tenaga kependidikan dan murid menyapa dengan senyum dan bahasa santun</li><li>Siswa saling membantu teman yang belum paham materi tanpa diminta</li><li>Siswa tidak segan meminta bantuan kepada guru dan guru respon terhadap kesulitan siswa</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Program pembiasaan di madrasah</li><li>Bukti pelaksanaan pembiasaan di madrasah</li></ul>',
+'<b>Melalui pengamatan, wawancara dengan guru dan murid serta telaah data bahwa:</b><ul><li>Guru membangun kesadaran dalam kesetaraan gender dalam kegiatan pembelajaran</li><li>Madrasah memberikan kesempatan yang sama kepada murid laki-laki dan perempuan</li><li>Madrasah memberikan hak yang sama kepada guru dan tendik untuk terlibat dalam organisasi dan kegiatan</li></ul><b>Melalui telaah dokumen:</b><ul><li>KSP yang memuat kebijakan layanan kesetaraan gender</li><li>RPP memuat membangun kesetaraan gender</li><li>Struktur kelas, OSIM, struktur madrasah</li></ul>',
+'<b>Melalui pengamatan tentang:</b><ul><li>Lingkungan madrasah bersih, sehat, tertib, ruang kelas bersih, rapi, pencahayaan dan sirkulasi udara cukup</li><li>Guru, tenaga kependidikan, dan murid saling menyapa dan tersenyum</li><li>Murid belajar dengan antusias dan ekspresi gembira</li><li>Terbangun budaya saling menolong dan empati</li></ul>',
+'<b>Melalui telaah dokumen tentang:</b><ul><li>KSP memuat kebijakan madrasah dalam mengakomodasi anak berkebutuhan khusus tertentu</li><li>Tersedianya Program Pembelajaran Individual (PPI/IEP) bagi anak berkebutuhan khusus</li><li>Tersedianya sarana dan prasarana yang mendukung aksesibilitas</li></ul>',
+'<b>Melalui telaah dokumen tentang:</b><ul><li>Tersedia SK TPPK (Tim pencegahan dan penanganan perundungan/kekerasan)</li><li>Tersedianya SOP/alur pelaporan dan penanganan kasus yang jelas dan mudah dipahami</li><li>Sosialisasi rutin tentang anti-perundungan dan kekerasan kepada siswa</li><li>Terdapat catatan penanganan kasus dan tindak lanjut</li></ul>',
+'<b>Melalui pengamatan tampak:</b><ul><li>Lingkungan tertata rapi, ada perawatan rutin, dan tidak ditemukan potensi bahaya fisik</li><li>Perlengkapan keselamatan tanggap bencana tersedia dan diketahui warga madrasah</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Tersedia dokumentasi simulasi kebencanaan</li></ul>',
+'<b>Melalui pengamatan tampak:</b><ul><li>Pembiasaan kegiatan cuci tangan, memilah sampah, atau menjaga kebersihan kelas</li><li>Pembiasaan menjaga kebersihan sebelum dan sesudah belajar</li><li>Sarana kesehatan tersedia dan dimanfaatkan</li><li>Kantin atau area jualan tampak bersih dan sehat</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Program PHBS</li><li>Program dan dokumentasi menjaga kebugaran bagi murid, guru dan tendik</li><li>Laporan terlaksananya kegiatan pencegahan adiksi murid</li><li>Laporan terlaksananya kegiatan membangun kesehatan reproduksi murid</li></ul>',
+'<b>Melalui telaah dokumen tentang:</b><ul><li>Lembar evaluasi khusus (Lembar Observasi/Angket/Jurnal Refleksi)</li><li>Dokumen evaluasi implementasi KBC</li><li>Laporan hasil evaluasi dampak KBC terhadap perilaku dan iklim madrasah</li></ul>'
 ];
 function getIklimMadrasah(){try{return JSON.parse(localStorage.getItem(IKLIM_MADRASAH_KEY))||[];}catch(e){return [];}}
 function saveIklimMadrasah(data){localStorage.setItem(IKLIM_MADRASAH_KEY,JSON.stringify(data));}
@@ -4448,6 +4414,69 @@ var def=[
 ];
 saveMadrasah(def);
 }
+// ===== BACKUP & RESTORE =====
+function renderBackupRestore(){
+var html='<div class="card"><h2 style="margin-bottom:20px">&#128190; Export/Backup & Restore</h2>';
+html+='<p style="color:#64748b;margin-bottom:20px">Backup semua data ke file JSON atau restore dari file backup sebelumnya.</p>';
+html+='<div class="grid-2">';
+html+='<div class="stat-card"><h3 style="margin-bottom:15px">&#128229; Export / Backup</h3>';
+html+='<p style="color:#64748b;font-size:.85rem;margin-bottom:15px">Download semua data (pengawas, madrasah, guru, supervisi, kokurikuler, ekstrakurikuler, iklim madrasah) ke file JSON.</p>';
+html+='<button class="btn btn-primary" onclick="exportBackup()">&#128229; Download Backup</button></div>';
+html+='<div class="stat-card"><h3 style="margin-bottom:15px">&#128228; Restore</h3>';
+html+='<p style="color:#64748b;font-size:.85rem;margin-bottom:15px">Upload file backup JSON untuk mengembalikan data. Data saat ini akan ditimpa.</p>';
+html+='<button class="btn btn-warning" onclick="document.getElementById(\'restoreFile\').click()">&#128228; Upload & Restore</button>';
+html+='<input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importRestore(event)"></div>';
+html+='</div></div>';
+html+='<div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">\u2715 Tutup</button></div>';
+return html;
+}
+function exportBackup(){
+var backup={
+version:'1.0',
+date:new Date().toISOString(),
+pengawas:getPengawas(),
+madrasah:getMadrasah(),
+guru:getGuru(),
+supervisi:getData(),
+kokurikuler:(function(){try{return JSON.parse(localStorage.getItem(KOKURIKULER_KEY))||[]}catch(e){return[]}})(),
+ekstrakurikuler:(function(){try{return JSON.parse(localStorage.getItem(EKSTRAKURIKULER_KEY))||[]}catch(e){return[]}})(),
+iklimMadrasah:(function(){try{return JSON.parse(localStorage.getItem(IKLIM_MADRASAH_KEY))||[]}catch(e){return[]}})(),
+indikator:(function(){try{return JSON.parse(localStorage.getItem(INDIKATOR_KEY))||null}catch(e){return null}})(),
+users:getUsers()
+};
+var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;
+a.download='backup_supervisi_'+new Date().toISOString().slice(0,10)+'.json';
+a.click();
+URL.revokeObjectURL(url);
+}
+function importRestore(event){
+var file=event.target.files[0];
+if(!file)return;
+if(!confirm('Data saat ini akan ditimpa dengan data dari file backup. Lanjutkan?'))return;
+var reader=new FileReader();
+reader.onload=function(e){
+try{
+var backup=JSON.parse(e.target.result);
+if(backup.pengawas)savePengawas(backup.pengawas);
+if(backup.madrasah)saveMadrasah(backup.madrasah);
+if(backup.guru)saveGuru(backup.guru);
+if(backup.supervisi)saveData(backup.supervisi);
+if(backup.kokurikuler)localStorage.setItem(KOKURIKULER_KEY,JSON.stringify(backup.kokurikuler));
+if(backup.ekstrakurikuler)localStorage.setItem(EKSTRAKURIKULER_KEY,JSON.stringify(backup.ekstrakurikuler));
+if(backup.iklimMadrasah)localStorage.setItem(IKLIM_MADRASAH_KEY,JSON.stringify(backup.iklimMadrasah));
+if(backup.indikator)localStorage.setItem(INDIKATOR_KEY,JSON.stringify(backup.indikator));
+if(backup.users)saveUsers(backup.users);
+alert('Restore berhasil! Data telah dipulihkan.');
+render();
+}catch(err){alert('Gagal restore: '+err.message);}
+};
+reader.readAsText(file);
+event.target.value='';
+}
+
 initDefaultMadrasah();
 checkAuth();
 render();
