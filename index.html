@@ -170,7 +170,7 @@ canvas{max-width:100%;margin:20px 0}
 <li onclick="navigate('rekap-kokurikuler')" data-nav="rekap-kokurikuler">&#128202; Rekap</li>
 <li onclick="navigate('laporan-kokurikuler')" data-nav="laporan-kokurikuler">&#128196; Cetak Laporan Lengkap</li>
 <li onclick="navigate('laporan-kokurikuler-madrasah')" data-nav="laporan-kokurikuler-madrasah">&#128196; Laporan Per Madrasah</li>
-<li onclick="navigate('laporan-kokurikuler-kkma')" data-nav="laporan-kokurikuler-kkma">&#128196; Laporan Per KKMA</li>
+
 </ul>
 <li class="submenu-toggle" onclick="toggleSubmenu('sub-ekstrakurikuler')">&#128203; Ekstrakurikuler &#9662;</li>
 <ul class="submenu" id="sub-ekstrakurikuler">
@@ -178,7 +178,7 @@ canvas{max-width:100%;margin:20px 0}
 <li onclick="navigate('rekap-ekstrakurikuler')" data-nav="rekap-ekstrakurikuler">&#128202; Rekap</li>
 <li onclick="navigate('laporan-ekstrakurikuler')" data-nav="laporan-ekstrakurikuler">&#128196; Cetak Laporan Lengkap</li>
 <li onclick="navigate('laporan-ekstrakurikuler-madrasah')" data-nav="laporan-ekstrakurikuler-madrasah">&#128196; Laporan Per Madrasah</li>
-<li onclick="navigate('laporan-ekstrakurikuler-kkma')" data-nav="laporan-ekstrakurikuler-kkma">&#128196; Laporan Per KKMA</li>
+
 </ul>
 <li class="submenu-toggle" onclick="toggleSubmenu('sub-iklim')">&#127979; Iklim Madrasah &#9662;</li>
 <ul class="submenu" id="sub-iklim">
@@ -186,7 +186,7 @@ canvas{max-width:100%;margin:20px 0}
 <li onclick="navigate('rekap-iklim-madrasah')" data-nav="rekap-iklim-madrasah">&#128202; Rekap</li>
 <li onclick="navigate('laporan-iklim-madrasah')" data-nav="laporan-iklim-madrasah">&#128196; Cetak Laporan Lengkap</li>
 <li onclick="navigate('laporan-iklim-madrasah-permadrasah')" data-nav="laporan-iklim-madrasah-permadrasah">&#128196; Laporan Per Madrasah</li>
-<li onclick="navigate('laporan-iklim-madrasah-kkma')" data-nav="laporan-iklim-madrasah-kkma">&#128196; Laporan Per KKMA</li>
+
 </ul>
 <li onclick="navigate('ubah-password')" data-nav="ubah-password">&#128274; Ubah Password</li>
 <li onclick="navigate('backup-restore')" data-nav="backup-restore">&#128190; Export/Backup &amp; Restore</li>
@@ -3823,8 +3823,7 @@ html+='.ttd{margin-top:50px;text-align:center;margin-left:auto;margin-right:0;wi
 html+='</style></head><body>';
 // COVER
 html+='<div class="cover"><h1>LAPORAN</h1><h1>SUPERVISI KOKURIKULER</h1><h2>Tahun Ajaran 2025-2026</h2><br><br><br>';
-html+='<p style="text-align:center;font-size:14pt"><b>'+(firstMadrasah.nama||'Madrasah ...')+'</b></p>';
-html+='<p style="text-align:center">Alamat: '+(firstMadrasah.alamat||'...')+'</p><br><br><br><br>';
+html+='<p style="text-align:center;font-size:14pt"><b>'+(pengawas.tempatTugas||'KKMA')+'</b></p><br><br><br><br>';
 html+='<p style="text-align:center">Disusun oleh:</p>';
 html+='<p style="text-align:center;font-size:13pt"><b>'+(pengawas.nama||'...')+'</b></p>';
 html+='<p style="text-align:center">NIP. '+(pengawas.nip||'...')+'</p>';
@@ -4032,8 +4031,7 @@ html+='.ttd{margin-top:50px;text-align:center;margin-left:auto;margin-right:0;wi
 html+='</style></head><body>';
 // COVER
 html+='<div class="cover"><h1>LAPORAN</h1><h1>SUPERVISI EKSTRAKURIKULER</h1><h2>Tahun Ajaran 2025-2026</h2><br><br><br>';
-html+='<p style="text-align:center;font-size:14pt"><b>'+(firstMadrasah.nama||'Madrasah ...')+'</b></p>';
-html+='<p style="text-align:center">Alamat: '+(firstMadrasah.alamat||'...')+'</p><br><br><br><br>';
+html+='<p style="text-align:center;font-size:14pt"><b>'+(pengawas.tempatTugas||'KKMA')+'</b></p><br><br><br><br>';
 html+='<p style="text-align:center">Disusun oleh:</p>';
 html+='<p style="text-align:center;font-size:13pt"><b>'+(pengawas.nama||'...')+'</b></p>';
 html+='<p style="text-align:center">NIP. '+(pengawas.nip||'...')+'</p>';
@@ -4241,8 +4239,7 @@ html+='.ttd{margin-top:50px;text-align:center;margin-left:auto;margin-right:0;wi
 html+='</style></head><body>';
 // COVER
 html+='<div class="cover"><h1>LAPORAN</h1><h1>SUPERVISI IKLIM MADRASAH</h1><h2>Tahun Ajaran 2025-2026</h2><br><br><br>';
-html+='<p style="text-align:center;font-size:14pt"><b>'+(firstMadrasah.nama||'Madrasah ...')+'</b></p>';
-html+='<p style="text-align:center">Alamat: '+(firstMadrasah.alamat||'...')+'</p><br><br><br><br>';
+html+='<p style="text-align:center;font-size:14pt"><b>'+(pengawas.tempatTugas||'KKMA')+'</b></p><br><br><br><br>';
 html+='<p style="text-align:center">Disusun oleh:</p>';
 html+='<p style="text-align:center;font-size:13pt"><b>'+(pengawas.nama||'...')+'</b></p>';
 html+='<p style="text-align:center">NIP. '+(pengawas.nip||'...')+'</p>';
