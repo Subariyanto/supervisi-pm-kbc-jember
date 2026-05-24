@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Penggunaan - Aplikasi Supervisi PM-KBC</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f8fafb;color:#1e293b;line-height:1.7}
+.header{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;padding:40px 20px;text-align:center}
+.header h1{font-size:1.8rem;margin-bottom:8px}
+.header p{opacity:.85;font-size:1rem}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.toc{background:#fff;border-radius:12px;padding:25px 30px;margin:20px 0;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.toc h2{color:#0d9488;margin-bottom:15px;font-size:1.3rem}
+.toc ol{padding-left:20px}
+.toc ol li{margin-bottom:8px}
+.toc ol li a{color:#0ea5e9;text-decoration:none;font-weight:500}
+.toc ol li a:hover{text-decoration:underline}
+.section{background:#fff;border-radius:12px;padding:25px 30px;margin:20px 0;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.section h2{color:#0d9488;margin-bottom:15px;font-size:1.3rem;border-bottom:2px solid #e2e8f0;padding-bottom:10px}
+.section h3{color:#1e40af;margin:18px 0 10px;font-size:1.05rem}
+.section p{margin-bottom:12px}
+.section ul,.section ol{padding-left:24px;margin-bottom:12px}
+.section li{margin-bottom:6px}
+.note{background:#f0f9ff;border-left:4px solid #0ea5e9;padding:12px 16px;border-radius:0 8px 8px 0;margin:15px 0;font-size:.9rem}
+.warning{background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:0 8px 8px 0;margin:15px 0;font-size:.9rem}
+.step{background:#f0fdfa;border:1px solid #99f6e4;border-radius:8px;padding:12px 16px;margin:10px 0}
+.step strong{color:#0d9488}
+.badge{display:inline-block;background:linear-gradient(135deg,#0ea5e9,#0d9488);color:#fff;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600;margin-right:6px}
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:.9rem}
+table th,table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left}
+table th{background:linear-gradient(135deg,#0ea5e9,#0d9488);color:#fff;font-weight:600}
+table tr:nth-child(even){background:#f8fafc}
+.footer{text-align:center;padding:30px 20px;color:#64748b;font-size:.85rem;border-top:1px solid #e2e8f0;margin-top:30px}
+.back-to-top{position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#0ea5e9,#0d9488);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 12px rgba(14,165,233,.4);display:none;z-index:100}
+.back-to-top:hover{transform:translateY(-2px)}
+@media print{.back-to-top,.header{display:none}.container{max-width:100%;padding:0}.section,.toc{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}}
+@media(max-width:600px){.header h1{font-size:1.4rem}.container{padding:10px}.section,.toc{padding:15px 18px}}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>Panduan Penggunaan</h1>
+<p>Aplikasi Supervisi Pembelajaran PM-KBC - Pokjawas Jawa Timur</p>
+</div>
+<div class="container">
+
+<div class="toc" id="daftar-isi">
+<h2>Daftar Isi</h2>
+<ol>
+<li><a href="#pendahuluan">Pendahuluan</a></li>
+<li><a href="#login">Login dan Registrasi</a></li>
+<li><a href="#dashboard">Dashboard</a></li>
+<li><a href="#data-pengawas">Data Pengawas</a></li>
+<li><a href="#data-madrasah">Data Madrasah</a></li>
+<li><a href="#data-guru">Data Guru</a></li>
+<li><a href="#supervisi-pembelajaran">Supervisi Pembelajaran</a></li>
+<li><a href="#supervisi-kokurikuler">Supervisi Kokurikuler</a></li>
+<li><a href="#supervisi-ekstrakurikuler">Supervisi Ekstrakurikuler</a></li>
+<li><a href="#supervisi-iklim">Supervisi Iklim Madrasah</a></li>
+<li><a href="#cetak-laporan">Cetak Laporan Lengkap</a></li>
+<li><a href="#laporan-madrasah">Laporan Per Madrasah</a></li>
+<li><a href="#ubah-password">Ubah Password</a></li>
+<li><a href="#backup-restore">Export/Backup dan Restore</a></li>
+<li><a href="#tips">Tips dan Catatan Penting</a></li>
+</ol>
+</div>
+
+<div class="section" id="pendahuluan">
+<h2>1. Pendahuluan</h2>
+<p>Aplikasi Supervisi PM-KBC adalah aplikasi berbasis web yang dirancang untuk membantu Pengawas Madrasah dalam melaksanakan supervisi pembelajaran, kokurikuler, ekstrakurikuler, dan iklim madrasah sesuai dengan standar Pokjawas Jawa Timur.</p>
+<h3>Fitur Utama</h3>
+<ul>
+<li>Input supervisi pembelajaran per guru dengan penilaian skor 1-4</li>
+<li>Input supervisi kokurikuler, ekstrakurikuler, dan iklim madrasah per madrasah</li>
+<li>Cetak instrumen supervisi dan rekap hasil</li>
+<li>Cetak laporan lengkap (cover, kata pengantar, BAB I-V, lampiran)</li>
+<li>Laporan per madrasah dan per KKMA</li>
+<li>Backup dan restore data</li>
+<li>Multi-user dengan sistem login</li>
+</ul>
+<div class="note">
+<strong>Catatan:</strong> Semua data tersimpan di localStorage browser. Artinya data hanya tersedia di browser dan perangkat yang sama. Gunakan fitur Backup secara berkala untuk mengamankan data Anda.
+</div>
+</div>
+
+<div class="section" id="login">
+<h2>2. Login dan Registrasi</h2>
+<h3>Login</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Buka aplikasi di browser Anda.<br>
+<strong>Langkah 2:</strong> Masukkan username dan password.<br>
+<strong>Langkah 3:</strong> Klik tombol <strong>Login</strong>.
+</div>
+<h3>Akun Default</h3>
+<table>
+<tr><th>Username</th><th>Password</th></tr>
+<tr><td>admin</td><td>admin123</td></tr>
+</table>
+<div class="warning">
+<strong>Penting:</strong> Segera ubah password default setelah login pertama kali melalui menu Ubah Password.
+</div>
+<h3>Registrasi Akun Baru</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Di halaman login, klik link <strong>Daftar</strong>.<br>
+<strong>Langkah 2:</strong> Isi nama lengkap, username (min. 3 karakter), dan password (min. 4 karakter).<br>
+<strong>Langkah 3:</strong> Konfirmasi password, lalu klik <strong>Daftar</strong>.<br>
+<strong>Langkah 4:</strong> Setelah berhasil, Anda akan diarahkan ke halaman login.
+</div>
+</div>
+
+<div class="section" id="dashboard">
+<h2>3. Dashboard</h2>
+<p>Dashboard menampilkan ringkasan data supervisi Anda:</p>
+<ul>
+<li><strong>Total Supervisi</strong> - Jumlah supervisi pembelajaran yang telah dilakukan</li>
+<li><strong>Data Madrasah</strong> - Jumlah madrasah yang terdaftar</li>
+<li><strong>Data Guru</strong> - Jumlah guru yang terdaftar</li>
+</ul>
+<p>Di bawah statistik terdapat <strong>Daftar Supervisi</strong> yang menampilkan semua data supervisi pembelajaran beserta persentase capaian. Anda dapat:</p>
+<ul>
+<li>Klik item untuk melihat detail</li>
+<li>Klik ikon pensil untuk mengedit</li>
+<li>Klik ikon hapus untuk menghapus data</li>
+</ul>
+<p>Grafik capaian ditampilkan di bagian bawah untuk visualisasi perbandingan skor Perencanaan, Pelaksanaan, dan Asesmen.</p>
+</div>
+
+<div class="section" id="data-pengawas">
+<h2>4. Data Pengawas</h2>
+<p>Menu ini digunakan untuk mengisi identitas pengawas yang akan tampil di laporan.</p>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Data Pengawas</strong> di sidebar.<br>
+<strong>Langkah 2:</strong> Isi data: Nama Pengawas, NIP, Pangkat/Golongan, dan informasi lainnya.<br>
+<strong>Langkah 3:</strong> Klik <strong>Simpan</strong>.
+</div>
+<div class="note">
+<strong>Catatan:</strong> Data pengawas akan otomatis muncul di semua laporan yang dicetak.
+</div>
+</div>
+
+<div class="section" id="data-madrasah">
+<h2>5. Data Madrasah</h2>
+<p>Kelola daftar madrasah binaan Anda di menu ini.</p>
+<h3>Tambah Madrasah</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Data Madrasah</strong> di sidebar.<br>
+<strong>Langkah 2:</strong> Klik tombol <strong>+ Tambah Madrasah</strong>.<br>
+<strong>Langkah 3:</strong> Isi data: Nama Madrasah, NPSN, Alamat, Kabupaten/Kota, Kepala Madrasah.<br>
+<strong>Langkah 4:</strong> Klik <strong>Simpan</strong>.
+</div>
+<h3>Import dari Excel</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik tombol <strong>Template Excel</strong> untuk mengunduh template.<br>
+<strong>Langkah 2:</strong> Isi data madrasah di file Excel sesuai format template.<br>
+<strong>Langkah 3:</strong> Klik tombol <strong>Import Excel</strong> dan pilih file yang sudah diisi.
+</div>
+</div>
+
+<div class="section" id="data-guru">
+<h2>6. Data Guru</h2>
+<p>Kelola daftar guru yang akan disupervisi.</p>
+<h3>Tambah Guru</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Data Guru</strong> di sidebar.<br>
+<strong>Langkah 2:</strong> Klik tombol <strong>+ Tambah Guru</strong>.<br>
+<strong>Langkah 3:</strong> Isi data: Nama Guru, NIP, Madrasah, Mata Pelajaran, dan Kelas.<br>
+<strong>Langkah 4:</strong> Klik <strong>Simpan</strong>.
+</div>
+<h3>Import dari Excel</h3>
+<p>Sama seperti data madrasah, Anda dapat mengunduh template dan mengimport data guru dari file Excel.</p>
+</div>
+
+<div class="section" id="supervisi-pembelajaran">
+<h2>7. Supervisi Pembelajaran</h2>
+<p>Fitur utama untuk melakukan supervisi pembelajaran per guru. Terdiri dari 3 komponen penilaian:</p>
+<table>
+<tr><th>Komponen</th><th>Jumlah Indikator</th><th>Keterangan</th></tr>
+<tr><td>Perencanaan</td><td>10</td><td>Telaah dokumen RPP/Modul Ajar</td></tr>
+<tr><td>Pelaksanaan</td><td>10</td><td>Observasi pembelajaran di kelas</td></tr>
+<tr><td>Asesmen</td><td>8</td><td>Penilaian dan evaluasi pembelajaran</td></tr>
+</table>
+
+<h3>Input Supervisi Baru</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Supervisi Pembelajaran > Input Supervisi</strong>.<br>
+<strong>Langkah 2:</strong> Isi identitas: pilih guru, tanggal supervisi, materi, dll.<br>
+<strong>Langkah 3:</strong> Klik <strong>Lanjut</strong> untuk masuk ke penilaian Perencanaan.<br>
+<strong>Langkah 4:</strong> Beri skor 1-4 untuk setiap indikator perencanaan. Klik aspek (teks biru bergaris) untuk melihat penggalian data.<br>
+<strong>Langkah 5:</strong> Lanjut ke Pelaksanaan, beri skor 1-4 untuk setiap indikator.<br>
+<strong>Langkah 6:</strong> Lanjut ke Asesmen, beri skor 1-4 untuk setiap indikator.<br>
+<strong>Langkah 7:</strong> Klik <strong>Simpan</strong> untuk menyimpan hasil supervisi.
+</div>
+
+<h3>Skala Penilaian</h3>
+<table>
+<tr><th>Skor</th><th>Predikat</th><th>Keterangan</th></tr>
+<tr><td>1</td><td>Kurang</td><td>Belum terlaksana/tidak sesuai</td></tr>
+<tr><td>2</td><td>Cukup</td><td>Terlaksana sebagian kecil</td></tr>
+<tr><td>3</td><td>Baik</td><td>Terlaksana dengan baik</td></tr>
+<tr><td>4</td><td>Sangat Baik</td><td>Terlaksana dengan sangat baik dan konsisten</td></tr>
+</table>
+
+<h3>Kategori Hasil</h3>
+<table>
+<tr><th>Persentase</th><th>Predikat</th></tr>
+<tr><td>91% - 100%</td><td>Sangat Baik</td></tr>
+<tr><td>81% - 90%</td><td>Baik</td></tr>
+<tr><td>71% - 80%</td><td>Cukup</td></tr>
+<tr><td>&lt; 71%</td><td>Kurang</td></tr>
+</table>
+
+<h3>Rekap Hasil</h3>
+<p>Menu <strong>Supervisi Pembelajaran > Rekap Hasil</strong> menampilkan tabel rekap seluruh supervisi yang telah dilakukan, lengkap dengan skor per komponen dan predikat akhir.</p>
+
+<h3>Cetak Hasil</h3>
+<p>Menu <strong>Supervisi Pembelajaran > Cetak Hasil</strong> memungkinkan Anda mencetak instrumen supervisi per guru dalam format yang siap print.</p>
+</div>
+
+<div class="section" id="supervisi-kokurikuler">
+<h2>8. Supervisi Kokurikuler</h2>
+<p>Supervisi kegiatan kokurikuler dilakukan per madrasah dengan 12 indikator penilaian.</p>
+<h3>Input Supervisi Kokurikuler</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Kokurikuler > Input Kokurikuler</strong>.<br>
+<strong>Langkah 2:</strong> Klik <strong>+ Supervisi Baru</strong> atau pilih madrasah yang sudah ada.<br>
+<strong>Langkah 3:</strong> Pilih madrasah dan isi tanggal supervisi.<br>
+<strong>Langkah 4:</strong> Beri skor 1-4 untuk setiap indikator kokurikuler.<br>
+<strong>Langkah 5:</strong> Klik <strong>Simpan</strong>.
+</div>
+<h3>Rekap dan Cetak</h3>
+<ul>
+<li><strong>Rekap</strong> - Menampilkan tabel rekap hasil supervisi kokurikuler semua madrasah</li>
+<li><strong>Cetak Laporan Lengkap</strong> - Mencetak laporan lengkap dengan cover, kata pengantar, BAB I-V, dan lampiran</li>
+<li><strong>Laporan Per Madrasah</strong> - Mencetak laporan untuk madrasah tertentu</li>
+</ul>
+</div>
+
+<div class="section" id="supervisi-ekstrakurikuler">
+<h2>9. Supervisi Ekstrakurikuler</h2>
+<p>Supervisi kegiatan ekstrakurikuler dilakukan per madrasah dengan 10 indikator penilaian.</p>
+<h3>Input Supervisi Ekstrakurikuler</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Ekstrakurikuler > Input Ekstrakurikuler</strong>.<br>
+<strong>Langkah 2:</strong> Klik <strong>+ Supervisi Baru</strong> atau pilih madrasah yang sudah ada.<br>
+<strong>Langkah 3:</strong> Pilih madrasah dan isi tanggal supervisi.<br>
+<strong>Langkah 4:</strong> Beri skor 1-4 untuk setiap indikator ekstrakurikuler.<br>
+<strong>Langkah 5:</strong> Klik <strong>Simpan</strong>.
+</div>
+<h3>Rekap dan Cetak</h3>
+<ul>
+<li><strong>Rekap</strong> - Menampilkan tabel rekap hasil supervisi ekstrakurikuler semua madrasah</li>
+<li><strong>Cetak Laporan Lengkap</strong> - Mencetak laporan lengkap dengan cover, kata pengantar, BAB I-V, dan lampiran</li>
+<li><strong>Laporan Per Madrasah</strong> - Mencetak laporan untuk madrasah tertentu</li>
+</ul>
+</div>
+
+<div class="section" id="supervisi-iklim">
+<h2>10. Supervisi Iklim Madrasah</h2>
+<p>Supervisi iklim madrasah menilai kondisi dan suasana madrasah secara keseluruhan.</p>
+<h3>Input Supervisi Iklim Madrasah</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Iklim Madrasah > Input Iklim Madrasah</strong>.<br>
+<strong>Langkah 2:</strong> Klik <strong>+ Supervisi Baru</strong> atau pilih madrasah yang sudah ada.<br>
+<strong>Langkah 3:</strong> Pilih madrasah dan isi tanggal supervisi.<br>
+<strong>Langkah 4:</strong> Beri skor 1-4 untuk setiap indikator iklim madrasah.<br>
+<strong>Langkah 5:</strong> Klik <strong>Simpan</strong>.
+</div>
+<h3>Rekap dan Cetak</h3>
+<ul>
+<li><strong>Rekap</strong> - Menampilkan tabel rekap hasil supervisi iklim madrasah</li>
+<li><strong>Cetak Laporan Lengkap</strong> - Mencetak laporan lengkap dengan cover, kata pengantar, BAB I-V, dan lampiran</li>
+<li><strong>Laporan Per Madrasah</strong> - Mencetak laporan untuk madrasah tertentu</li>
+</ul>
+</div>
+
+<div class="section" id="cetak-laporan">
+<h2>11. Cetak Laporan Lengkap</h2>
+<p>Setiap jenis supervisi memiliki fitur cetak laporan lengkap yang menghasilkan dokumen resmi dengan struktur:</p>
+<ul>
+<li><strong>Cover/Halaman Judul</strong> - Judul laporan, nama pengawas, instansi</li>
+<li><strong>Kata Pengantar</strong> - Pengantar laporan supervisi</li>
+<li><strong>BAB I - Pendahuluan</strong> - Latar belakang, tujuan, sasaran</li>
+<li><strong>BAB II - Landasan Hukum</strong> - Dasar hukum pelaksanaan supervisi</li>
+<li><strong>BAB III - Pelaksanaan</strong> - Waktu, tempat, metode supervisi</li>
+<li><strong>BAB IV - Hasil</strong> - Data hasil supervisi dan analisis</li>
+<li><strong>BAB V - Penutup</strong> - Kesimpulan dan rekomendasi</li>
+<li><strong>Lampiran</strong> - Instrumen dan data pendukung</li>
+</ul>
+<div class="step">
+<strong>Cara Cetak:</strong><br>
+1. Buka menu Cetak Laporan Lengkap pada jenis supervisi yang diinginkan.<br>
+2. Pastikan data pengawas dan data supervisi sudah terisi.<br>
+3. Klik tombol <strong>Cetak Laporan</strong>.<br>
+4. Gunakan Ctrl+P atau tombol Print untuk mencetak/menyimpan sebagai PDF.
+</div>
+</div>
+
+<div class="section" id="laporan-madrasah">
+<h2>12. Laporan Per Madrasah</h2>
+<p>Fitur ini tersedia untuk supervisi Kokurikuler, Ekstrakurikuler, dan Iklim Madrasah. Memungkinkan Anda mencetak laporan khusus untuk satu madrasah tertentu.</p>
+<div class="step">
+<strong>Langkah 1:</strong> Buka menu <strong>Laporan Per Madrasah</strong> pada jenis supervisi yang diinginkan.<br>
+<strong>Langkah 2:</strong> Pilih madrasah dari daftar dropdown.<br>
+<strong>Langkah 3:</strong> Klik <strong>Cetak</strong> atau gunakan Ctrl+P.
+</div>
+</div>
+
+<div class="section" id="ubah-password">
+<h2>13. Ubah Password</h2>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Ubah Password</strong> di sidebar.<br>
+<strong>Langkah 2:</strong> Masukkan password lama.<br>
+<strong>Langkah 3:</strong> Masukkan password baru (min. 4 karakter).<br>
+<strong>Langkah 4:</strong> Konfirmasi password baru.<br>
+<strong>Langkah 5:</strong> Klik <strong>Simpan Password</strong>.
+</div>
+</div>
+
+<div class="section" id="backup-restore">
+<h2>14. Export/Backup dan Restore</h2>
+<p>Fitur ini sangat penting untuk mengamankan data Anda karena semua data tersimpan di browser (localStorage).</p>
+<h3>Backup Data</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Export/Backup &amp; Restore</strong> di sidebar.<br>
+<strong>Langkah 2:</strong> Klik tombol <strong>Backup/Export Data</strong>.<br>
+<strong>Langkah 3:</strong> File JSON akan terunduh otomatis. Simpan file ini di tempat yang aman.
+</div>
+<h3>Restore Data</h3>
+<div class="step">
+<strong>Langkah 1:</strong> Klik menu <strong>Export/Backup &amp; Restore</strong> di sidebar.<br>
+<strong>Langkah 2:</strong> Klik tombol <strong>Restore/Import Data</strong>.<br>
+<strong>Langkah 3:</strong> Pilih file backup JSON yang pernah Anda simpan.<br>
+<strong>Langkah 4:</strong> Konfirmasi restore. Data lama akan ditimpa dengan data dari file backup.
+</div>
+<div class="warning">
+<strong>Perhatian:</strong> Restore akan menimpa SEMUA data yang ada saat ini. Pastikan Anda membackup data terbaru sebelum melakukan restore.
+</div>
+</div>
+
+<div class="section" id="tips">
+<h2>15. Tips dan Catatan Penting</h2>
+<h3>Penyimpanan Data</h3>
+<ul>
+<li>Data tersimpan di <strong>localStorage</strong> browser, bukan di server</li>
+<li>Jika Anda menghapus data browser/cache, data supervisi akan hilang</li>
+<li>Data hanya bisa diakses dari browser dan perangkat yang sama</li>
+<li>Lakukan <strong>backup rutin</strong> (minimal seminggu sekali)</li>
+</ul>
+<h3>Kompatibilitas Browser</h3>
+<ul>
+<li>Gunakan browser modern: Chrome, Edge, Firefox, atau Safari versi terbaru</li>
+<li>Pastikan JavaScript diaktifkan</li>
+<li>Aplikasi responsif dan bisa diakses dari HP/tablet</li>
+</ul>
+<h3>Tips Penggunaan</h3>
+<ul>
+<li>Isi data pengawas dan data madrasah terlebih dahulu sebelum melakukan supervisi</li>
+<li>Gunakan fitur import Excel untuk input data madrasah dan guru dalam jumlah banyak</li>
+<li>Klik teks indikator (berwarna biru) untuk melihat panduan penggalian data</li>
+<li>Gunakan tombol Reset Skor jika ingin mengulang penilaian dari awal</li>
+<li>Untuk mencetak, gunakan Ctrl+P dan pilih "Save as PDF" jika ingin menyimpan digital</li>
+<li>Indikator dapat diedit/disesuaikan melalui panel Edit Indikator di halaman input supervisi</li>
+</ul>
+<h3>Troubleshooting</h3>
+<table>
+<tr><th>Masalah</th><th>Solusi</th></tr>
+<tr><td>Data hilang setelah clear browser</td><td>Restore dari file backup terakhir</td></tr>
+<tr><td>Tidak bisa login</td><td>Gunakan akun default admin/admin123 atau daftar akun baru</td></tr>
+<tr><td>Tampilan berantakan di HP</td><td>Gunakan tombol hamburger menu (&#9776;) di kiri atas untuk membuka sidebar</td></tr>
+<tr><td>Cetak tidak sesuai</td><td>Pastikan pengaturan print: margins Normal, tanpa header/footer</td></tr>
+</table>
+</div>
+
+</div>
+
+<div class="footer">
+<p>Aplikasi Supervisi PM-KBC &copy; 2024-2025</p>
+<p>Dibuat oleh: Subariyanto - Ketua Pokjawas Madrasah Kab. Jember</p>
+<p>Instrumen disusun oleh: Ida Safiaturrahma - Pengawas Madrasah Kab. Lamongan</p>
+</div>
+
+<button class="back-to-top" id="btnTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+<script>
+window.addEventListener('scroll',function(){
+document.getElementById('btnTop').style.display=window.scrollY>300?'block':'none';
+});
+</script>
+</body>
+</html>
