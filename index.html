@@ -168,19 +168,25 @@ canvas{max-width:100%;margin:20px 0}
 <ul class="submenu" id="sub-kokurikuler">
 <li onclick="navigate('kokurikuler')" data-nav="kokurikuler">&#128221; Input Kokurikuler</li>
 <li onclick="navigate('rekap-kokurikuler')" data-nav="rekap-kokurikuler">&#128202; Rekap</li>
-<li onclick="navigate('laporan-kokurikuler')" data-nav="laporan-kokurikuler">&#128196; Laporan</li>
+<li onclick="navigate('laporan-kokurikuler')" data-nav="laporan-kokurikuler">&#128196; Cetak Laporan Lengkap</li>
+<li onclick="navigate('laporan-kokurikuler-madrasah')" data-nav="laporan-kokurikuler-madrasah">&#128196; Laporan Per Madrasah</li>
+<li onclick="navigate('laporan-kokurikuler-kkma')" data-nav="laporan-kokurikuler-kkma">&#128196; Laporan Per KKMA</li>
 </ul>
 <li class="submenu-toggle" onclick="toggleSubmenu('sub-ekstrakurikuler')">&#128203; Ekstrakurikuler &#9662;</li>
 <ul class="submenu" id="sub-ekstrakurikuler">
 <li onclick="navigate('ekstrakurikuler')" data-nav="ekstrakurikuler">&#128221; Input Ekstrakurikuler</li>
 <li onclick="navigate('rekap-ekstrakurikuler')" data-nav="rekap-ekstrakurikuler">&#128202; Rekap</li>
-<li onclick="navigate('laporan-ekstrakurikuler')" data-nav="laporan-ekstrakurikuler">&#128196; Laporan</li>
+<li onclick="navigate('laporan-ekstrakurikuler')" data-nav="laporan-ekstrakurikuler">&#128196; Cetak Laporan Lengkap</li>
+<li onclick="navigate('laporan-ekstrakurikuler-madrasah')" data-nav="laporan-ekstrakurikuler-madrasah">&#128196; Laporan Per Madrasah</li>
+<li onclick="navigate('laporan-ekstrakurikuler-kkma')" data-nav="laporan-ekstrakurikuler-kkma">&#128196; Laporan Per KKMA</li>
 </ul>
 <li class="submenu-toggle" onclick="toggleSubmenu('sub-iklim')">&#127979; Iklim Madrasah &#9662;</li>
 <ul class="submenu" id="sub-iklim">
 <li onclick="navigate('iklim-madrasah')" data-nav="iklim-madrasah">&#128221; Input Iklim Madrasah</li>
 <li onclick="navigate('rekap-iklim-madrasah')" data-nav="rekap-iklim-madrasah">&#128202; Rekap</li>
-<li onclick="navigate('laporan-iklim-madrasah')" data-nav="laporan-iklim-madrasah">&#128196; Laporan</li>
+<li onclick="navigate('laporan-iklim-madrasah')" data-nav="laporan-iklim-madrasah">&#128196; Cetak Laporan Lengkap</li>
+<li onclick="navigate('laporan-iklim-madrasah-permadrasah')" data-nav="laporan-iklim-madrasah-permadrasah">&#128196; Laporan Per Madrasah</li>
+<li onclick="navigate('laporan-iklim-madrasah-kkma')" data-nav="laporan-iklim-madrasah-kkma">&#128196; Laporan Per KKMA</li>
 </ul>
 <li onclick="navigate('ubah-password')" data-nav="ubah-password">&#128274; Ubah Password</li>
 <li onclick="navigate('backup-restore')" data-nav="backup-restore">&#128190; Export/Backup &amp; Restore</li>
@@ -861,15 +867,21 @@ case 'laporan':app.innerHTML=renderLaporanPage();break;
 case 'laporan-kokurikuler':app.innerHTML=renderLaporanKokurikulerPage();break;
 case 'laporan-ekstrakurikuler':app.innerHTML=renderLaporanEkstrakurikulerPage();break;
 case 'laporan-iklim-madrasah':app.innerHTML=renderLaporanIklimMadrasahPage();break;
+case 'laporan-kokurikuler-madrasah':app.innerHTML=renderLaporanKokurikulerPerMadrasahPage();break;
+case 'laporan-kokurikuler-kkma':app.innerHTML=renderLaporanKokurikulerPerKKMAPage();break;
+case 'laporan-ekstrakurikuler-madrasah':app.innerHTML=renderLaporanEkstrakurikulerPerMadrasahPage();break;
+case 'laporan-ekstrakurikuler-kkma':app.innerHTML=renderLaporanEkstrakurikulerPerKKMAPage();break;
+case 'laporan-iklim-madrasah-permadrasah':app.innerHTML=renderLaporanIklimMadrasahPerMadrasahPage();break;
+case 'laporan-iklim-madrasah-kkma':app.innerHTML=renderLaporanIklimMadrasahPerKKMAPage();break;
 case 'ubah-password':app.innerHTML=renderUbahPassword();break;
 case 'backup-restore':app.innerHTML=renderBackupRestore();break;
 default:app.innerHTML=renderDashboard();
 }
 var titleEl=document.getElementById('pageTitle');
 if(titleEl){
-var isKoku=(state.view==='kokurikuler'||state.view==='kokurikuler-form'||state.view==='rekap-kokurikuler');
-var isEkstra=(state.view==='ekstrakurikuler'||state.view==='ekstrakurikuler-form'||state.view==='rekap-ekstrakurikuler');
-var isIklim=(state.view==='iklim-madrasah'||state.view==='iklim-madrasah-form'||state.view==='rekap-iklim-madrasah');
+var isKoku=(state.view==='kokurikuler'||state.view==='kokurikuler-form'||state.view==='rekap-kokurikuler'||state.view==='laporan-kokurikuler'||state.view==='laporan-kokurikuler-madrasah'||state.view==='laporan-kokurikuler-kkma');
+var isEkstra=(state.view==='ekstrakurikuler'||state.view==='ekstrakurikuler-form'||state.view==='rekap-ekstrakurikuler'||state.view==='laporan-ekstrakurikuler'||state.view==='laporan-ekstrakurikuler-madrasah'||state.view==='laporan-ekstrakurikuler-kkma');
+var isIklim=(state.view==='iklim-madrasah'||state.view==='iklim-madrasah-form'||state.view==='rekap-iklim-madrasah'||state.view==='laporan-iklim-madrasah'||state.view==='laporan-iklim-madrasah-permadrasah'||state.view==='laporan-iklim-madrasah-kkma');
 titleEl.innerHTML=isKoku?'\u{1F4CB} Supervisi Kokurikuler':isEkstra?'\u{1F4CB} Supervisi Ekstrakurikuler':isIklim?'\u{1F3EB} Iklim Madrasah':'\u{1F4CB} Supervisi Pembelajaran';
 }
 app.classList.add('fade-in');
@@ -4478,6 +4490,131 @@ render();
 reader.readAsText(file);
 event.target.value='';
 }
+
+// ===== LAPORAN PER MADRASAH & PER KKMA =====
+function getLaporanPrintStyle(){
+var s='<style>@page{size:A4;margin:2.5cm}';
+s+='body{font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.8;color:#000}';
+s+='table{width:100%;border-collapse:collapse;margin:10px 0}';
+s+='th,td{border:1px solid #000;padding:6px 8px;font-size:11pt;vertical-align:middle}';
+s+='th{background:#f0f0f0;font-weight:bold;text-align:center}';
+s+='td{text-align:center}td.left{text-align:left}';
+s+='.ttd{margin-top:50px;text-align:center;margin-left:auto;margin-right:0;width:fit-content;min-width:250px}';
+s+='</style>';return s;}
+
+function calcScorePct(scores,maxItems){
+var sum=scores.reduce(function(a,b){return a+((b!==null&&b!==undefined)?b+1:0)},0);
+var max=maxItems*4;
+return max>0?(sum/max)*100:0;}
+
+function renderLaporanPerMadrasahGeneric(title,getData,INDIKATOR,cetakFn){
+var data=getData();
+var pengawas=getPengawas();
+var html='<div class="card"><h2 style="margin-bottom:20px">&#128196; '+title+' - Per Madrasah</h2>';
+if(data.length===0){html+='<div class="empty-state"><p>Belum ada data.</p></div>';}
+else{
+var grouped={};
+data.forEach(function(d){var n=d.madrasahNama||'(Tanpa Madrasah)';if(!grouped[n])grouped[n]=[];grouped[n].push(d);});
+html+='<p style="margin-bottom:15px">Pilih madrasah untuk mencetak laporan:</p>';
+Object.keys(grouped).forEach(function(mName){
+var mData=grouped[mName];
+var totalPct=0;mData.forEach(function(d){totalPct+=calcScorePct(d.scores||[],INDIKATOR.length)});
+var avgPct=mData.length>0?(totalPct/mData.length):0;
+html+='<div class="dashboard-item" onclick="'+cetakFn+'(\''+escHtml(mName).replace(/'/g,"\\\'")+'\')"><div class="info"><h4>'+escHtml(mName)+'</h4>';
+html+='<p>'+mData.length+' penilaian | Rata-rata: '+avgPct.toFixed(1)+'% ('+getPredikat(avgPct)+')</p></div>';
+html+='<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();'+cetakFn+'(\''+escHtml(mName).replace(/'/g,"\\\'")+'\')">&#128424; Cetak</button></div>';});}
+html+='</div><div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">&#10005; Tutup</button></div>';
+return html;}
+
+function renderLaporanPerKKMAGeneric(title,getData,INDIKATOR,cetakFn){
+var data=getData();
+var pengawas=getPengawas();
+var kkma=pengawas.tempatTugas||'KKMA';
+var html='<div class="card"><h2 style="margin-bottom:20px">&#128196; '+title+' - Per KKMA</h2>';
+if(data.length===0){html+='<div class="empty-state"><p>Belum ada data.</p></div>';}
+else{
+var totalPct=0;data.forEach(function(d){totalPct+=calcScorePct(d.scores||[],INDIKATOR.length)});
+var avgPct=data.length>0?(totalPct/data.length):0;
+html+='<div class="dashboard-item" onclick="'+cetakFn+'()"><div class="info"><h4>'+escHtml(kkma)+'</h4>';
+html+='<p>'+data.length+' penilaian | Rata-rata: '+avgPct.toFixed(1)+'% ('+getPredikat(avgPct)+')</p></div>';
+html+='<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();'+cetakFn+'()">&#128424; Cetak</button></div>';}
+html+='</div><div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">&#10005; Tutup</button></div>';
+return html;}
+
+function cetakLaporanPerMadrasahGeneric(mName,title,getData,INDIKATOR){
+var allData=getData();
+var data=allData.filter(function(d){return (d.madrasahNama||'(Tanpa Madrasah)')===mName;});
+if(data.length===0){alert('Tidak ada data untuk madrasah ini.');return;}
+var pengawas=getPengawas();
+var w=window.open('','_blank');
+var html='<html><head><title>Laporan '+title+' - '+escHtml(mName)+'</title>'+getLaporanPrintStyle()+'</head><body>';
+html+='<h2 style="text-align:center">LAPORAN '+title.toUpperCase()+'</h2>';
+html+='<h3 style="text-align:center">'+escHtml(mName)+'</h3><br>';
+html+='<table><thead><tr><th>No</th><th>Indikator</th><th>Skor</th></tr></thead><tbody>';
+var totalSum=new Array(INDIKATOR.length).fill(0);
+var totalCount=new Array(INDIKATOR.length).fill(0);
+data.forEach(function(d){
+var sc=d.scores||[];
+for(var i=0;i<INDIKATOR.length;i++){if(sc[i]!==null&&sc[i]!==undefined){totalSum[i]+=sc[i]+1;totalCount[i]++;}}
+});
+var grandSum=0;var grandMax=INDIKATOR.length*4;
+for(var i=0;i<INDIKATOR.length;i++){
+var avg=totalCount[i]>0?(totalSum[i]/totalCount[i]):0;
+grandSum+=avg;
+html+='<tr><td>'+(i+1)+'</td><td class="left">'+INDIKATOR[i]+'</td><td>'+avg.toFixed(1)+'</td></tr>';}
+html+='</tbody></table>';
+var pct=grandMax>0?(grandSum/grandMax)*100:0;
+html+='<p><b>Total Skor:</b> '+grandSum.toFixed(1)+'/'+grandMax+' ('+pct.toFixed(1)+'%)</p>';
+html+='<p><b>Predikat:</b> '+getPredikat(pct)+'</p>';
+html+='<p><b>Jumlah Penilaian:</b> '+data.length+'</p>';
+html+='<div class="ttd"><p>..................., .................... 2025</p><p>Pengawas Madrasah,</p><br><br><br><p><b><u>'+(pengawas.nama||'...')+'</u></b></p><p>NIP. '+(pengawas.nip||'...')+'</p></div>';
+html+='</body></html>';
+w.document.write(html);w.document.close();setTimeout(function(){w.print();},500);}
+
+function cetakLaporanPerKKMAGeneric(title,getData,INDIKATOR){
+var data=getData();
+if(data.length===0){alert('Tidak ada data.');return;}
+var pengawas=getPengawas();
+var kkma=pengawas.tempatTugas||'KKMA';
+var w=window.open('','_blank');
+var html='<html><head><title>Laporan '+title+' - '+escHtml(kkma)+'</title>'+getLaporanPrintStyle()+'</head><body>';
+html+='<h2 style="text-align:center">LAPORAN '+title.toUpperCase()+'</h2>';
+html+='<h3 style="text-align:center">'+escHtml(kkma)+'</h3><br>';
+var grouped={};
+data.forEach(function(d){var n=d.madrasahNama||'(Tanpa Madrasah)';if(!grouped[n])grouped[n]=[];grouped[n].push(d);});
+html+='<table><thead><tr><th>No</th><th>Madrasah</th><th>Jml Penilaian</th><th>Rata-rata (%)</th><th>Predikat</th></tr></thead><tbody>';
+var no=1;var grandTotal=0;var grandCount=0;
+Object.keys(grouped).forEach(function(mName){
+var mData=grouped[mName];
+var totalPct=0;mData.forEach(function(d){totalPct+=calcScorePct(d.scores||[],INDIKATOR.length)});
+var avgPct=mData.length>0?(totalPct/mData.length):0;
+grandTotal+=totalPct;grandCount+=mData.length;
+html+='<tr><td>'+no+'</td><td class="left">'+escHtml(mName)+'</td><td>'+mData.length+'</td><td>'+avgPct.toFixed(1)+'%</td><td>'+getPredikat(avgPct)+'</td></tr>';
+no++;});
+html+='</tbody></table>';
+var overallPct=grandCount>0?(grandTotal/grandCount):0;
+html+='<p><b>Rata-rata Keseluruhan:</b> '+overallPct.toFixed(1)+'% ('+getPredikat(overallPct)+')</p>';
+html+='<div class="ttd"><p>..................., .................... 2025</p><p>Pengawas Madrasah,</p><br><br><br><p><b><u>'+(pengawas.nama||'...')+'</u></b></p><p>NIP. '+(pengawas.nip||'...')+'</p></div>';
+html+='</body></html>';
+w.document.write(html);w.document.close();setTimeout(function(){w.print();},500);}
+
+// Kokurikuler
+function renderLaporanKokurikulerPerMadrasahPage(){return renderLaporanPerMadrasahGeneric('Laporan Kokurikuler',getKokurikuler,KOKURIKULER,'cetakLaporanKokurikulerPerMadrasah');}
+function renderLaporanKokurikulerPerKKMAPage(){return renderLaporanPerKKMAGeneric('Laporan Kokurikuler',getKokurikuler,KOKURIKULER,'cetakLaporanKokurikulerPerKKMA');}
+function cetakLaporanKokurikulerPerMadrasah(mName){cetakLaporanPerMadrasahGeneric(mName,'Supervisi Kokurikuler',getKokurikuler,KOKURIKULER);}
+function cetakLaporanKokurikulerPerKKMA(){cetakLaporanPerKKMAGeneric('Supervisi Kokurikuler',getKokurikuler,KOKURIKULER);}
+
+// Ekstrakurikuler
+function renderLaporanEkstrakurikulerPerMadrasahPage(){return renderLaporanPerMadrasahGeneric('Laporan Ekstrakurikuler',getEkstrakurikuler,EKSTRAKURIKULER,'cetakLaporanEkstrakurikulerPerMadrasah');}
+function renderLaporanEkstrakurikulerPerKKMAPage(){return renderLaporanPerKKMAGeneric('Laporan Ekstrakurikuler',getEkstrakurikuler,EKSTRAKURIKULER,'cetakLaporanEkstrakurikulerPerKKMA');}
+function cetakLaporanEkstrakurikulerPerMadrasah(mName){cetakLaporanPerMadrasahGeneric(mName,'Supervisi Ekstrakurikuler',getEkstrakurikuler,EKSTRAKURIKULER);}
+function cetakLaporanEkstrakurikulerPerKKMA(){cetakLaporanPerKKMAGeneric('Supervisi Ekstrakurikuler',getEkstrakurikuler,EKSTRAKURIKULER);}
+
+// Iklim Madrasah
+function renderLaporanIklimMadrasahPerMadrasahPage(){return renderLaporanPerMadrasahGeneric('Laporan Iklim Madrasah',getIklimMadrasah,IKLIM_MADRASAH,'cetakLaporanIklimMadrasahPerMadrasah');}
+function renderLaporanIklimMadrasahPerKKMAPage(){return renderLaporanPerKKMAGeneric('Laporan Iklim Madrasah',getIklimMadrasah,IKLIM_MADRASAH,'cetakLaporanIklimMadrasahPerKKMA');}
+function cetakLaporanIklimMadrasahPerMadrasah(mName){cetakLaporanPerMadrasahGeneric(mName,'Supervisi Iklim Madrasah',getIklimMadrasah,IKLIM_MADRASAH);}
+function cetakLaporanIklimMadrasahPerKKMA(){cetakLaporanPerKKMAGeneric('Supervisi Iklim Madrasah',getIklimMadrasah,IKLIM_MADRASAH);}
 
 initDefaultMadrasah();
 checkAuth();
