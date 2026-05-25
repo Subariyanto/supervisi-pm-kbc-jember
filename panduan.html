@@ -10,6 +10,9 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f8fafb;color:#1e293b;l
 .header{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;padding:40px 20px;text-align:center}
 .header h1{font-size:1.8rem;margin-bottom:8px}
 .header p{opacity:.85;font-size:1rem}
+.btn-pdf{display:inline-block;margin-top:15px;padding:10px 25px;background:#fff;color:#0d9488;border:none;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s}
+.btn-pdf:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,.2)}
+@media print{.btn-pdf{display:none!important}}
 .container{max-width:900px;margin:0 auto;padding:20px}
 .toc{background:#fff;border-radius:12px;padding:25px 30px;margin:20px 0;box-shadow:0 4px 20px rgba(0,0,0,.08)}
 .toc h2{color:#0d9488;margin-bottom:15px;font-size:1.3rem}
@@ -43,6 +46,7 @@ table tr:nth-child(even){background:#f8fafc}
 <div class="header">
 <h1>Panduan Penggunaan</h1>
 <p>Aplikasi Supervisi Pembelajaran PM-KBC - Pokjawas Jawa Timur</p>
+<button class="btn-pdf" onclick="window.print()">📄 Save PDF</button>
 </div>
 <div class="container">
 
