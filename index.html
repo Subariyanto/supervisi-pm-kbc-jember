@@ -4421,7 +4421,12 @@ setTimeout(function(){w.print()},500);
 
 // ===== INIT =====
 // === INIT DEFAULT MADRASAH ===
+// Dinonaktifkan: aplikasi ini akan dipakai pengawas lain juga,
+// jadi data madrasah tidak boleh di-seed otomatis.
+// Pengguna mengisi sendiri lewat menu Data Madrasah / Import Excel.
 function initDefaultMadrasah(){
+return; // no-op
+/* SEED LAMA (tidak dipakai):
 if(getMadrasah().length>0)return;
 var def=[
 {nama:'MAS AL - BADRI',npsn:'20580249',alamat:'Jl. Kalisat Arjasa No. 50 Dusun Krajan, Gumuksari, Kalisat',kabupaten:'Jember',kepala:'Saifuddin, S.Pd.I',nipKepala:''},
@@ -4446,6 +4451,7 @@ var def=[
 {nama:'MAS NURUL ULUM',npsn:'70059027',alamat:'Jl. Pesantren Dsn. Tegalan Ds. Sumberkejayan, Sumberkejayan, Mayang',kabupaten:'Jember',kepala:'Ahmad Ghovind Surur Hafili, S.Pd',nipKepala:''}
 ];
 saveMadrasah(def);
+*/
 }
 // ===== BACKUP & RESTORE =====
 function renderBackupRestore(){
