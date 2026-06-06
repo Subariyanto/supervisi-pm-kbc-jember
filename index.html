@@ -838,7 +838,7 @@ state.view=view;state.editId=null;
 document.querySelectorAll('.sidebar-menu li').forEach(function(li){li.classList.toggle('active',li.dataset.nav===view)});
 document.querySelectorAll('.submenu li').forEach(function(li){li.classList.toggle('active',li.dataset.nav===view)});
 if(window.innerWidth<768)document.getElementById('sidebar').classList.remove('open');
-if(view==='supervisi'&&(!state.formData||!state.formData.identitas||!state.formData.identitas.namaGuru)){newForm();return;}
+if(view==='supervisi'){newForm();return;}
 render();
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
@@ -1264,7 +1264,7 @@ html+='<table class="ttd-table" style="margin-top:40px"><tr>';
 html+='<td style="width:50%"><p>Mengetahui,</p><p>Kepala Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">.........................</p>';
 html+='<p style="margin-top:0">NIP. .........................</p></td>';
-html+='<td style="width:50%"><p>&nbsp;</p><p>Pengawas Madrasah,</p><br><br><br>';
+html+='<td style="width:50%"><p>Kabupaten Jember, .......................</p><p>Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(pengawas.nama||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'.........................')+'</p></td>';
 html+='</tr></table>';
@@ -1828,7 +1828,8 @@ html+='<table class="ttd-table"><tr>';
 html+='<td style="width:50%"><p>Guru Mata Pelajaran,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaGuru||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipGuru||'.........................')+'</p></td>';
-html+='<td style="width:50%"><p>Pengawas Madrasah,</p><br><br><br>';
+html+='<td style="width:50%"><p>Kabupaten '+(id.kabupatenKota||'Jember')+', '+(id.tanggalSupervisi||'.....................')+'</p>';
+html+='<p>Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaSupervisor||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p></td>';
 html+='</tr></table>';
@@ -1889,7 +1890,8 @@ html+='<table class="ttd-table"><tr>';
 html+='<td style="width:50%"><p>Guru Mata Pelajaran,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaGuru||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipGuru||'.........................')+'</p></td>';
-html+='<td style="width:50%"><p>Pengawas Madrasah,</p><br><br><br>';
+html+='<td style="width:50%"><p>Kabupaten '+(id.kabupatenKota||'Jember')+', '+(id.tanggalSupervisi||'.....................')+'</p>';
+html+='<p>Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaSupervisor||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p></td>';
 html+='</tr></table>';
@@ -1961,6 +1963,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(id.nipGuru||'.........................')+'</p>';
 html+='</td>';
 html+='<td style="border:none;width:50%;text-align:center;vertical-align:top">';
+html+='<p>Kabupaten '+(id.kabupatenKota||'Jember')+', '+(id.tanggalSupervisi||'.....................')+'</p>';
 html+='<p>Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaSupervisor||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p>';
