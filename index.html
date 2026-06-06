@@ -791,6 +791,7 @@ function getPredikatClass(p){return'predikat-'+p.toLowerCase().replace(' ','-')}
 function calcTotal(d){let sum=0,max=0;['perencanaan','pelaksanaan','asesmen'].forEach(k=>{const scores=d[k]&&d[k].scores?d[k].scores:[];const itemCount=k==='pelaksanaan'?getIndikatorPelaksanaanFlat().length:getIndikator(k).length;const effectiveLen=Math.min(scores.length,itemCount);for(let i=0;i<effectiveLen;i++){const s=scores[i];if(s!==null&&s!==undefined){sum+=s+1;max+=4}}});return max>0?(sum/max)*100:0}
 function calcKomponen(d,key){const scores=d[key]&&d[key].scores?d[key].scores:[];const itemCount=key==='pelaksanaan'?getIndikatorPelaksanaanFlat().length:getIndikator(key).length;let sum=0,max=0;const effectiveLen=Math.min(scores.length,itemCount);for(let i=0;i<effectiveLen;i++){const s=scores[i];if(s!==null&&s!==undefined){sum+=s+1;max+=4}}return max>0?(sum/max)*100:0}
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function formatTglDMY(s){if(!s)return'...-...-....';var p=s.split('-');return p.length===3?(p[2]+'-'+p[1]+'-'+p[0]):s;}
 function getPelaksanaanFlat(){return getIndikatorPelaksanaanFlat()}
 
 function showPenggalian(idx){
@@ -1264,7 +1265,7 @@ html+='<table class="ttd-table" style="margin-top:40px"><tr>';
 html+='<td style="width:50%"><p>Mengetahui,</p><p>Kepala Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">.........................</p>';
 html+='<p style="margin-top:0">NIP. .........................</p></td>';
-html+='<td style="width:50%"><p>Kabupaten Jember, .......................</p><p>Pengawas Madrasah,</p><br><br><br>';
+html+='<td style="width:50%"><p style="margin:0">Jember, ...-...-....  </p><p style="margin:0">Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(pengawas.nama||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'.........................')+'</p></td>';
 html+='</tr></table>';
@@ -1825,11 +1826,10 @@ html+='<div style="margin-top:15px"><b>Rencana Tindak Lanjut:</b></div>';
 html+='<p style="text-align:justify;line-height:1.6;margin:5px 0">'+escHtml(rekapData.tindakLanjut)+'</p>';
 }
 html+='<table class="ttd-table"><tr>';
-html+='<td style="width:50%"><p>Guru Mata Pelajaran,</p><br><br><br>';
+html+='<td style="width:50%"><p style="margin:0">&nbsp;</p><p style="margin:0">Guru Mata Pelajaran,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaGuru||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipGuru||'.........................')+'</p></td>';
-html+='<td style="width:50%"><p>Kabupaten '+(id.kabupatenKota||'Jember')+', '+(id.tanggalSupervisi||'.....................')+'</p>';
-html+='<p>Pengawas Madrasah,</p><br><br><br>';
+html+='<td style="width:50%"><p style="margin:0">Jember, '+formatTglDMY(id.tanggalSupervisi)+'</p><p style="margin:0">Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaSupervisor||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p></td>';
 html+='</tr></table>';
@@ -1887,11 +1887,10 @@ html+='<p class="narasi">'+escHtml(rekapData.tindakLanjut)+'</p>';
 }
 });
 html+='<table class="ttd-table"><tr>';
-html+='<td style="width:50%"><p>Guru Mata Pelajaran,</p><br><br><br>';
+html+='<td style="width:50%"><p style="margin:0">&nbsp;</p><p style="margin:0">Guru Mata Pelajaran,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaGuru||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipGuru||'.........................')+'</p></td>';
-html+='<td style="width:50%"><p>Kabupaten '+(id.kabupatenKota||'Jember')+', '+(id.tanggalSupervisi||'.....................')+'</p>';
-html+='<p>Pengawas Madrasah,</p><br><br><br>';
+html+='<td style="width:50%"><p style="margin:0">Jember, '+formatTglDMY(id.tanggalSupervisi)+'</p><p style="margin:0">Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaSupervisor||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p></td>';
 html+='</tr></table>';
@@ -1958,13 +1957,12 @@ html+='<p style="text-align:justify;line-height:1.6;margin:5px 0">'+escHtml(reka
 // Tanda tangan
 html+='<table style="width:100%;border:none;margin-top:40px"><tr>';
 html+='<td style="border:none;width:50%;text-align:center;vertical-align:top">';
-html+='<p>Guru Mata Pelajaran,</p><br><br><br>';
+html+='<p style="margin:0">&nbsp;</p><p style="margin:0">Guru Mata Pelajaran,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaGuru||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipGuru||'.........................')+'</p>';
 html+='</td>';
 html+='<td style="border:none;width:50%;text-align:center;vertical-align:top">';
-html+='<p>Kabupaten '+(id.kabupatenKota||'Jember')+', '+(id.tanggalSupervisi||'.....................')+'</p>';
-html+='<p>Pengawas Madrasah,</p><br><br><br>';
+html+='<p style="margin:0">Jember, '+formatTglDMY(id.tanggalSupervisi)+'</p><p style="margin:0">Pengawas Madrasah,</p><br><br><br>';
 html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(id.namaSupervisor||'.........................')+'</p>';
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p>';
 html+='</td></tr></table>';
