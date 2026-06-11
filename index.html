@@ -189,6 +189,8 @@ canvas{max-width:100%;margin:20px 0}
 
 </ul>
 <li onclick="navigate('ubah-password')" data-nav="ubah-password">&#128274; Ubah Password</li>
+<li id="menuKodeAktivasi" onclick="navigate('kode-aktivasi')" data-nav="kode-aktivasi" style="display:none">&#128273; Kode Aktivasi</li>
+<li id="menuKelolaUser" onclick="navigate('kelola-user')" data-nav="kelola-user" style="display:none">&#128101; Kelola Pengguna</li>
 <li onclick="navigate('backup-restore')" data-nav="backup-restore">&#128190; Export/Backup &amp; Restore</li>
 <li onclick="window.open('panduan.html','_blank')" style="border-top:1px solid rgba(255,255,255,.1);margin-top:10px">&#128214; Panduan</li>
 <li onclick="doLogout()" style="border-top:1px solid rgba(255,255,255,.1);margin-top:10px;color:#f87171">&#128682; Logout</li>
@@ -208,6 +210,34 @@ canvas{max-width:100%;margin:20px 0}
 // ===== AUTH SYSTEM =====
 const USERS_KEY='supervisi_users';
 const SESSION_KEY='supervisi_session';
+const ACTIVATION_KEY='supervisi_activation_codes';
+// Kode default master (hard-coded). Ganti ini + redeploy kalau bocor.
+const DEFAULT_ACTIVATION_CODE='POKJAWAS-JEMBER-2026';
+
+function getActivationCodes(){
+try{return JSON.parse(localStorage.getItem(ACTIVATION_KEY))||[]}catch(e){return[]}
+}
+function saveActivationCodes(c){localStorage.setItem(ACTIVATION_KEY,JSON.stringify(c))}
+function isValidActivationCode(code){
+if(!code)return false;
+var c=String(code).trim().toUpperCase();
+if(c===DEFAULT_ACTIVATION_CODE)return true;
+var list=getActivationCodes();
+return list.some(function(x){return x.code===c&&!x.usedBy&&!x.revoked});
+}
+function consumeActivationCode(code,username){
+var c=String(code).trim().toUpperCase();
+if(c===DEFAULT_ACTIVATION_CODE)return; // master, tidak dihabiskan
+var list=getActivationCodes();
+var idx=list.findIndex(function(x){return x.code===c});
+if(idx>=0){list[idx].usedBy=username;list[idx].usedAt=new Date().toISOString();saveActivationCodes(list);}
+}
+function genActivationCode(){
+var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+var p=function(n){var s='';for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s};
+return p(4)+'-'+p(4)+'-'+p(4);
+}
+function isAdminSession(){var s=getSession();return s&&s.username==='admin'}
 
 function getUsers(){
 try{return JSON.parse(localStorage.getItem(USERS_KEY))||[]}catch(e){return[]}
@@ -243,6 +273,11 @@ document.getElementById('appLayout').style.display='';
 document.querySelector('.mobile-toggle').style.display='';
 var userEl=document.getElementById('sidebarUser');
 if(userEl)userEl.innerHTML='<strong>👤 '+escHtml(session.nama)+'</strong>';
+var isAdmin=session&&session.username==='admin';
+var mKode=document.getElementById('menuKodeAktivasi');
+if(mKode)mKode.style.display=isAdmin?'':'none';
+var mUser=document.getElementById('menuKelolaUser');
+if(mUser)mUser.style.display=isAdmin?'':'none';
 }
 
 function hideApp(){
@@ -282,6 +317,7 @@ card.innerHTML='<h2>📝 Daftar Akun</h2>'+
 '<div class="form-group"><label>Username</label><input type="text" id="regUsername" placeholder="Masukkan username" autocomplete="username"></div>'+
 '<div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="Masukkan password" autocomplete="new-password"></div>'+
 '<div class="form-group"><label>Konfirmasi Password</label><input type="password" id="regConfirm" placeholder="Ulangi password" autocomplete="new-password"></div>'+
+'<div class="form-group"><label>🔑 Kode Aktivasi</label><input type="text" id="regKode" placeholder="Contoh: ABCD-1234-EFGH" style="text-transform:uppercase" autocomplete="off"><small style="color:#64748b">Hubungi Admin / Ketua Pokjawas untuk mendapatkan kode.</small></div>'+
 '<button class="btn-auth" onclick="doRegister()">Daftar</button>'+
 '<div class="auth-link">Sudah punya akun? <a onclick="showLogin()">Login</a></div>';
 setTimeout(function(){document.getElementById('regNama').focus()},100);
@@ -317,12 +353,14 @@ var nama=document.getElementById('regNama').value.trim();
 var username=document.getElementById('regUsername').value.trim();
 var password=document.getElementById('regPassword').value;
 var confirm=document.getElementById('regConfirm').value;
+var kodeEl=document.getElementById('regKode');
+var kode=kodeEl?kodeEl.value.trim().toUpperCase():'';
 var errEl=document.getElementById('authError');
 var sucEl=document.getElementById('authSuccess');
 errEl.style.display='none';
 sucEl.style.display='none';
-if(!nama||!username||!password||!confirm){
-errEl.textContent='Semua field harus diisi.';
+if(!nama||!username||!password||!confirm||!kode){
+errEl.textContent='Semua field harus diisi (termasuk Kode Aktivasi).';
 errEl.style.display='block';return;
 }
 if(username.length<3){
@@ -337,14 +375,19 @@ if(password!==confirm){
 errEl.textContent='Konfirmasi password tidak cocok.';
 errEl.style.display='block';return;
 }
+if(!isValidActivationCode(kode)){
+errEl.textContent='Kode Aktivasi tidak valid / sudah dipakai. Hubungi Admin.';
+errEl.style.display='block';return;
+}
 var users=getUsers();
 var exists=users.find(function(u){return u.username===username});
 if(exists){
 errEl.textContent='Username sudah digunakan.';
 errEl.style.display='block';return;
 }
-users.push({nama:nama,username:username,password:password});
+users.push({nama:nama,username:username,password:password,activatedWith:kode,registeredAt:new Date().toISOString()});
 saveUsers(users);
+consumeActivationCode(kode,username);
 sucEl.textContent='Registrasi berhasil! Silakan login.';
 sucEl.style.display='block';
 setTimeout(function(){showLogin()},1500);
@@ -406,6 +449,156 @@ sucEl.style.display='block';
 document.getElementById('oldPass').value='';
 document.getElementById('newPass').value='';
 document.getElementById('confirmNewPass').value='';
+}
+
+// ===== KODE AKTIVASI (ADMIN) =====
+function renderKodeAktivasi(){
+if(!isAdminSession()){
+return '<div class="card"><h2>⛔ Akses Ditolak</h2><p>Halaman ini hanya untuk admin.</p></div>';
+}
+var list=getActivationCodes();
+var html='<div class="card">';
+html+='<h2 style="margin-bottom:10px">🔑 Kelola Kode Aktivasi</h2>';
+html+='<p style="color:#64748b;font-size:.85rem;margin-bottom:15px">Kode aktivasi wajib diisi calon pengguna saat registrasi. Bagikan kode hanya kepada pengawas yang berwenang.</p>';
+html+='<div style="background:#f0f9ff;border:1px solid #0ea5e9;border-radius:8px;padding:12px;margin-bottom:15px">';
+html+='<div style="font-size:.8rem;color:#0c4a6e;margin-bottom:4px">🔑 Kode Master (default, selalu aktif):</div>';
+html+='<div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#0d9488">'+escHtml(DEFAULT_ACTIVATION_CODE)+'</div>';
+html+='<div style="font-size:.75rem;color:#64748b;margin-top:6px">Kode ini hard-coded di source. Ganti + redeploy kalau bocor. Tidak bisa di-revoke dari sini.</div>';
+html+='</div>';
+html+='<div class="btn-group" style="margin-bottom:15px">';
+html+='<button class="btn btn-primary btn-sm" onclick="adminGenerateCode()">➕ Generate Kode Baru</button>';
+html+='<button class="btn btn-secondary btn-sm" onclick="adminGenerateCodeBatch()">➕ Generate 10 Sekaligus</button>';
+html+='<button class="btn btn-warning btn-sm" onclick="adminClearUsedCodes()">🧹 Hapus Kode Terpakai</button>';
+html+='</div>';
+if(list.length===0){
+html+='<div class="empty-state"><p>Belum ada kode aktivasi tambahan.<br>Klik <b>Generate Kode Baru</b> untuk membuat.</p></div>';
+}else{
+html+='<div style="overflow-x:auto"><table class="instrumen-table" style="font-size:.8rem">';
+html+='<thead><tr><th class="col-no">No</th><th>Kode</th><th>Status</th><th>Dipakai Oleh</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>';
+list.forEach(function(c,i){
+var status=c.revoked?'<span style="color:#dc2626">🚫 Dicabut</span>':(c.usedBy?'<span style="color:#64748b">✅ Terpakai</span>':'<span style="color:#0d9488">🟢 Aktif</span>');
+var tgl=c.usedAt?new Date(c.usedAt).toLocaleString('id-ID'):(c.createdAt?'dibuat: '+new Date(c.createdAt).toLocaleDateString('id-ID'):'-');
+var btn=c.usedBy||c.revoked?'<button class="btn btn-sm btn-danger" onclick="adminDeleteCode('+i+')">🗑️</button>':'<button class="btn btn-sm btn-warning" onclick="adminRevokeCode('+i+')">🚫 Revoke</button> <button class="btn btn-sm btn-secondary" onclick="adminCopyCode(\''+c.code+'\')">📋 Copy</button>';
+html+='<tr><td>'+(i+1)+'</td>';
+html+='<td style="font-family:monospace;font-weight:600;text-align:left">'+escHtml(c.code)+'</td>';
+html+='<td>'+status+'</td>';
+html+='<td style="text-align:left">'+escHtml(c.usedBy||'-')+'</td>';
+html+='<td style="text-align:left;font-size:.75rem">'+escHtml(tgl)+'</td>';
+html+='<td>'+btn+'</td></tr>';
+});
+html+='</tbody></table></div>';
+}
+html+='</div>';
+html+='<div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">✕ Tutup</button></div>';
+return html;
+}
+
+function adminGenerateCode(){
+if(!isAdminSession())return;
+var list=getActivationCodes();
+var code;do{code=genActivationCode()}while(list.some(function(x){return x.code===code}));
+list.unshift({code:code,createdAt:new Date().toISOString(),usedBy:null});
+saveActivationCodes(list);
+render();
+setTimeout(function(){alert('✅ Kode baru: '+code+'\nSudah otomatis di tabel.')},50);
+}
+function adminGenerateCodeBatch(){
+if(!isAdminSession())return;
+if(!confirm('Generate 10 kode aktivasi baru sekaligus?'))return;
+var list=getActivationCodes();
+var generated=[];
+for(var i=0;i<10;i++){
+var code;do{code=genActivationCode()}while(list.some(function(x){return x.code===code})||generated.indexOf(code)>=0);
+generated.push(code);
+list.unshift({code:code,createdAt:new Date().toISOString(),usedBy:null});
+}
+saveActivationCodes(list);
+render();
+setTimeout(function(){alert('✅ 10 kode baru sudah dibuat.')},50);
+}
+function adminCopyCode(code){
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(code).then(function(){alert('📋 Disalin: '+code)},function(){prompt('Salin kode:',code)});
+}else{prompt('Salin kode:',code);}
+}
+function adminRevokeCode(idx){
+if(!isAdminSession())return;
+var list=getActivationCodes();
+if(!list[idx])return;
+if(!confirm('Cabut kode '+list[idx].code+'?'))return;
+list[idx].revoked=true;
+saveActivationCodes(list);
+render();
+}
+function adminDeleteCode(idx){
+if(!isAdminSession())return;
+var list=getActivationCodes();
+if(!list[idx])return;
+if(!confirm('Hapus kode '+list[idx].code+' dari tabel?'))return;
+list.splice(idx,1);
+saveActivationCodes(list);
+render();
+}
+function adminClearUsedCodes(){
+if(!isAdminSession())return;
+if(!confirm('Hapus semua kode yang sudah terpakai / dicabut?'))return;
+var list=getActivationCodes().filter(function(c){return !c.usedBy&&!c.revoked});
+saveActivationCodes(list);
+render();
+}
+
+// ===== KELOLA USER (ADMIN) =====
+function renderKelolaUser(){
+if(!isAdminSession()){
+return '<div class="card"><h2>⛔ Akses Ditolak</h2><p>Halaman ini hanya untuk admin.</p></div>';
+}
+var users=getUsers();
+var html='<div class="card">';
+html+='<h2 style="margin-bottom:10px">👥 Kelola Pengguna</h2>';
+html+='<p style="color:#64748b;font-size:.85rem;margin-bottom:15px">Daftar semua akun yang terdaftar di aplikasi ini. Anda bisa reset password atau hapus akun pengguna.</p>';
+if(users.length===0){
+html+='<div class="empty-state"><p>Belum ada pengguna.</p></div>';
+}else{
+html+='<div style="overflow-x:auto"><table class="instrumen-table" style="font-size:.8rem">';
+html+='<thead><tr><th class="col-no">No</th><th>Nama</th><th>Username</th><th>Kode Aktivasi</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead><tbody>';
+users.forEach(function(u,i){
+var tgl=u.registeredAt?new Date(u.registeredAt).toLocaleDateString('id-ID'):'-';
+var btn=u.username==='admin'?'<span style="color:#64748b;font-size:.75rem">(admin)</span>':
+'<button class="btn btn-sm btn-warning" onclick="adminResetPassword(\''+u.username+'\')">🔑 Reset</button> <button class="btn btn-sm btn-danger" onclick="adminDeleteUser(\''+u.username+'\')">🗑️</button>';
+html+='<tr><td>'+(i+1)+'</td>';
+html+='<td style="text-align:left">'+escHtml(u.nama||'-')+'</td>';
+html+='<td style="text-align:left;font-family:monospace">'+escHtml(u.username)+'</td>';
+html+='<td style="text-align:left;font-family:monospace;font-size:.75rem">'+escHtml(u.activatedWith||'-')+'</td>';
+html+='<td style="font-size:.75rem">'+tgl+'</td>';
+html+='<td>'+btn+'</td></tr>';
+});
+html+='</tbody></table></div>';
+}
+html+='</div>';
+html+='<div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">✕ Tutup</button></div>';
+return html;
+}
+function adminResetPassword(username){
+if(!isAdminSession())return;
+if(username==='admin'){alert('Tidak bisa reset admin dari sini. Pakai menu Ubah Password.');return;}
+var np=prompt('Password baru untuk '+username+' (min 4 karakter):');
+if(np==null)return;
+np=String(np).trim();
+if(np.length<4){alert('Password minimal 4 karakter.');return;}
+var users=getUsers();
+var idx=users.findIndex(function(u){return u.username===username});
+if(idx<0)return;
+users[idx].password=np;
+saveUsers(users);
+alert('✅ Password '+username+' berhasil di-reset.');
+}
+function adminDeleteUser(username){
+if(!isAdminSession())return;
+if(username==='admin'){alert('Akun admin tidak bisa dihapus.');return;}
+if(!confirm('Hapus akun '+username+'?\nData supervisi yang sudah dimasukkan tidak ikut terhapus.'))return;
+var users=getUsers().filter(function(u){return u.username!==username});
+saveUsers(users);
+render();
 }
 
 // ===== CONSTANTS =====
@@ -876,6 +1069,8 @@ case 'laporan-iklim-madrasah':app.innerHTML=renderLaporanIklimMadrasahPage();bre
 case 'laporan-iklim-madrasah-madrasah':app.innerHTML=renderLaporanIklimMadrasahPerMadrasahPage();break;
 case 'laporan-iklim-madrasah-kkma':app.innerHTML=renderLaporanIklimMadrasahPerKKMAPage();break;
 case 'ubah-password':app.innerHTML=renderUbahPassword();break;
+case 'kode-aktivasi':app.innerHTML=renderKodeAktivasi();break;
+case 'kelola-user':app.innerHTML=renderKelolaUser();break;
 case 'backup-restore':app.innerHTML=renderBackupRestore();break;
 default:app.innerHTML=renderDashboard();
 }
