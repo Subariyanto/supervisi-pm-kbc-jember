@@ -112,8 +112,12 @@ canvas{max-width:100%;margin:20px 0}
 .modal-box .modal-close:hover{color:#ef4444}
 .col-aspek.clickable{cursor:pointer;color:#2563eb;text-decoration:underline;text-decoration-style:dotted}
 .col-aspek.clickable:hover{color:#1d4ed8}
-@media print{.sidebar,.mobile-toggle,.no-print,.btn-group,.modal-overlay{display:none!important}.main-content{margin-left:0!important}.card{box-shadow:none;border:1px solid #ddd}body{background:#fff}.print-only{display:block!important}}
+@media print{.sidebar,.mobile-toggle,.no-print,.btn-group,.modal-overlay{display:none!important}.main-content{margin-left:0!important}.card{box-shadow:none;border:1px solid #ddd}body{background:#fff}.print-only{display:block!important}body.is-trial-print::before{content:'TRIAL';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:8rem;font-weight:900;color:rgba(220,38,38,.18)!important;pointer-events:none;z-index:9998;letter-spacing:1rem}}
 .print-only{display:none}
+.trial-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;padding:14px 18px;margin:0 0 16px;color:#78350f;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:.9rem}
+.trial-banner.expired{background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#dc2626;color:#7f1d1d}
+.trial-banner b{color:#92400e}
+.trial-banner.expired b{color:#991b1b}
 /* AUTH STYLES */
 .auth-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);display:flex;align-items:center;justify-content:center;z-index:10000;min-height:100vh}
 .auth-card{background:#fff;border-radius:16px;padding:35px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.4);animation:fadeIn .3s ease}
@@ -213,17 +217,24 @@ const SESSION_KEY='supervisi_session';
 const ACTIVATION_KEY='supervisi_activation_codes';
 // Kode default master (hard-coded). Ganti ini + redeploy kalau bocor.
 const DEFAULT_ACTIVATION_CODE='POKJAWAS-JEMBER-2026';
+const TRIAL_DAYS=5;
+const TRIAL_MAX_SUPERVISI=10;
 
 function getActivationCodes(){
 try{return JSON.parse(localStorage.getItem(ACTIVATION_KEY))||[]}catch(e){return[]}
 }
 function saveActivationCodes(c){localStorage.setItem(ACTIVATION_KEY,JSON.stringify(c))}
-function isValidActivationCode(code){
-if(!code)return false;
+function findActivationCode(code){
+if(!code)return null;
 var c=String(code).trim().toUpperCase();
-if(c===DEFAULT_ACTIVATION_CODE)return true;
+if(c===DEFAULT_ACTIVATION_CODE)return{code:c,tier:'full',master:true};
 var list=getActivationCodes();
-return list.some(function(x){return x.code===c&&!x.usedBy&&!x.revoked});
+return list.find(function(x){return x.code===c&&!x.usedBy&&!x.revoked})||null;
+}
+function isValidActivationCode(code){return !!findActivationCode(code)}
+function getCodeTier(code){
+var c=findActivationCode(code);
+return c?(c.tier||'full'):null;
 }
 function consumeActivationCode(code,username){
 var c=String(code).trim().toUpperCase();
@@ -232,12 +243,53 @@ var list=getActivationCodes();
 var idx=list.findIndex(function(x){return x.code===c});
 if(idx>=0){list[idx].usedBy=username;list[idx].usedAt=new Date().toISOString();saveActivationCodes(list);}
 }
-function genActivationCode(){
+function genActivationCode(prefix){
 var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 var p=function(n){var s='';for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s};
-return p(4)+'-'+p(4)+'-'+p(4);
+var pfx=prefix?String(prefix).toUpperCase()+'-':'';
+return pfx+p(4)+'-'+p(4)+'-'+p(4);
 }
 function isAdminSession(){var s=getSession();return s&&s.username==='admin'}
+function getCurrentUser(){
+var s=getSession();
+if(!s)return null;
+if(s.username==='admin')return{nama:'Administrator',username:'admin',tier:'full'};
+var users=getUsers();
+return users.find(function(u){return u.username===s.username})||null;
+}
+function getTrialStatus(){
+// returns {tier:'trial|full|admin', isTrial, isExpired, daysLeft, supervisiCount, limitReached}
+var u=getCurrentUser();
+if(!u)return{tier:'full',isTrial:false,isExpired:false,daysLeft:Infinity,supervisiCount:0,limitReached:false};
+if(u.username==='admin')return{tier:'admin',isTrial:false,isExpired:false,daysLeft:Infinity,supervisiCount:0,limitReached:false};
+var tier=u.tier||'full';
+if(tier!=='trial')return{tier:'full',isTrial:false,isExpired:false,daysLeft:Infinity,supervisiCount:0,limitReached:false};
+var count=0;try{count=(JSON.parse(localStorage.getItem(APP_KEY))||[]).length}catch(e){}
+var daysLeft=Infinity;var isExpired=false;
+if(u.trialExpiresAt){
+var ms=new Date(u.trialExpiresAt).getTime()-Date.now();
+daysLeft=Math.ceil(ms/86400000);
+isExpired=ms<=0;
+}
+return{tier:'trial',isTrial:true,isExpired:isExpired,daysLeft:Math.max(0,daysLeft),supervisiCount:count,limitReached:count>=TRIAL_MAX_SUPERVISI};
+}
+function canCreateSupervisi(){
+var t=getTrialStatus();
+if(!t.isTrial)return{ok:true};
+if(t.isExpired)return{ok:false,reason:'Masa trial '+TRIAL_DAYS+' hari sudah habis. Hubungi Admin untuk Kode Aktivasi FULL agar bisa lanjut.'};
+if(t.limitReached)return{ok:false,reason:'Trial dibatasi maksimal '+TRIAL_MAX_SUPERVISI+' data supervisi. Hubungi Admin untuk upgrade ke FULL.'};
+return{ok:true};
+}
+function upgradeUserToFull(username){
+var users=getUsers();
+var idx=users.findIndex(function(u){return u.username===username});
+if(idx<0)return false;
+users[idx].tier='full';
+delete users[idx].trialExpiresAt;
+users[idx].upgradedAt=new Date().toISOString();
+saveUsers(users);
+return true;
+}
 
 function getUsers(){
 try{return JSON.parse(localStorage.getItem(USERS_KEY))||[]}catch(e){return[]}
@@ -379,18 +431,23 @@ if(!isValidActivationCode(kode)){
 errEl.textContent='Kode Aktivasi tidak valid / sudah dipakai. Hubungi Admin.';
 errEl.style.display='block';return;
 }
+var tier=getCodeTier(kode)||'full';
+var trialExpiresAt=null;
+if(tier==='trial')trialExpiresAt=new Date(Date.now()+TRIAL_DAYS*86400000).toISOString();
 var users=getUsers();
 var exists=users.find(function(u){return u.username===username});
 if(exists){
 errEl.textContent='Username sudah digunakan.';
 errEl.style.display='block';return;
 }
-users.push({nama:nama,username:username,password:password,activatedWith:kode,registeredAt:new Date().toISOString()});
+users.push({nama:nama,username:username,password:password,activatedWith:kode,registeredAt:new Date().toISOString(),tier:tier,trialExpiresAt:trialExpiresAt});
 saveUsers(users);
 consumeActivationCode(kode,username);
-sucEl.textContent='Registrasi berhasil! Silakan login.';
+var pesan='Registrasi berhasil! Silakan login.';
+if(tier==='trial')pesan='✅ Registrasi sukses sebagai TRIAL ('+TRIAL_DAYS+' hari, max '+TRIAL_MAX_SUPERVISI+' supervisi). Silakan login.';
+sucEl.textContent=pesan;
 sucEl.style.display='block';
-setTimeout(function(){showLogin()},1500);
+setTimeout(function(){showLogin()},1800);
 }
 
 function doLogout(){
@@ -466,21 +523,26 @@ html+='<div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:
 html+='<div style="font-size:.75rem;color:#64748b;margin-top:6px">Kode ini hard-coded di source. Ganti + redeploy kalau bocor. Tidak bisa di-revoke dari sini.</div>';
 html+='</div>';
 html+='<div class="btn-group" style="margin-bottom:15px">';
-html+='<button class="btn btn-primary btn-sm" onclick="adminGenerateCode()">➕ Generate Kode Baru</button>';
-html+='<button class="btn btn-secondary btn-sm" onclick="adminGenerateCodeBatch()">➕ Generate 10 Sekaligus</button>';
+html+='<button class="btn btn-primary btn-sm" onclick="adminGenerateCode(\'full\')">➕ Generate Kode FULL</button>';
+html+='<button class="btn btn-warning btn-sm" onclick="adminGenerateCode(\'trial\')">➕ Generate Kode TRIAL</button>';
+html+='<button class="btn btn-secondary btn-sm" onclick="adminGenerateCodeBatch(\'full\')">➕ 10x FULL</button>';
+html+='<button class="btn btn-secondary btn-sm" onclick="adminGenerateCodeBatch(\'trial\')">➕ 10x TRIAL</button>';
 html+='<button class="btn btn-warning btn-sm" onclick="adminClearUsedCodes()">🧹 Hapus Kode Terpakai</button>';
 html+='</div>';
 if(list.length===0){
 html+='<div class="empty-state"><p>Belum ada kode aktivasi tambahan.<br>Klik <b>Generate Kode Baru</b> untuk membuat.</p></div>';
 }else{
 html+='<div style="overflow-x:auto"><table class="instrumen-table" style="font-size:.8rem">';
-html+='<thead><tr><th class="col-no">No</th><th>Kode</th><th>Status</th><th>Dipakai Oleh</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>';
+html+='<thead><tr><th class="col-no">No</th><th>Kode</th><th>Tier</th><th>Status</th><th>Dipakai Oleh</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>';
 list.forEach(function(c,i){
 var status=c.revoked?'<span style="color:#dc2626">🚫 Dicabut</span>':(c.usedBy?'<span style="color:#64748b">✅ Terpakai</span>':'<span style="color:#0d9488">🟢 Aktif</span>');
 var tgl=c.usedAt?new Date(c.usedAt).toLocaleString('id-ID'):(c.createdAt?'dibuat: '+new Date(c.createdAt).toLocaleDateString('id-ID'):'-');
-var btn=c.usedBy||c.revoked?'<button class="btn btn-sm btn-danger" onclick="adminDeleteCode('+i+')">🗑️</button>':'<button class="btn btn-sm btn-warning" onclick="adminRevokeCode('+i+')">🚫 Revoke</button> <button class="btn btn-sm btn-secondary" onclick="adminCopyCode(\''+c.code+'\')">📋 Copy</button>';
+var tier=c.tier||'full';
+var tierLbl=tier==='trial'?'<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">TRIAL</span>':'<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">FULL</span>';
+var btn=c.usedBy||c.revoked?'<button class="btn btn-sm btn-danger" onclick="adminDeleteCode('+i+')">🗑️</button>':'<button class="btn btn-sm btn-warning" onclick="adminRevokeCode('+i+')">🚫</button> <button class="btn btn-sm btn-secondary" onclick="adminCopyCode(\''+c.code+'\')">📋</button>';
 html+='<tr><td>'+(i+1)+'</td>';
 html+='<td style="font-family:monospace;font-weight:600;text-align:left">'+escHtml(c.code)+'</td>';
+html+='<td>'+tierLbl+'</td>';
 html+='<td>'+status+'</td>';
 html+='<td style="text-align:left">'+escHtml(c.usedBy||'-')+'</td>';
 html+='<td style="text-align:left;font-size:.75rem">'+escHtml(tgl)+'</td>';
@@ -493,28 +555,32 @@ html+='<div class="no-print" style="margin-top:20px;text-align:right"><button cl
 return html;
 }
 
-function adminGenerateCode(){
+function adminGenerateCode(tier){
 if(!isAdminSession())return;
+tier=tier||'full';
+var prefix=tier==='trial'?'TRIAL':'FULL';
 var list=getActivationCodes();
-var code;do{code=genActivationCode()}while(list.some(function(x){return x.code===code}));
-list.unshift({code:code,createdAt:new Date().toISOString(),usedBy:null});
+var code;do{code=genActivationCode(prefix)}while(list.some(function(x){return x.code===code}));
+list.unshift({code:code,tier:tier,createdAt:new Date().toISOString(),usedBy:null});
 saveActivationCodes(list);
 render();
-setTimeout(function(){alert('✅ Kode baru: '+code+'\nSudah otomatis di tabel.')},50);
+setTimeout(function(){alert('✅ Kode '+tier.toUpperCase()+' baru: '+code+'\nSudah otomatis di tabel.')},50);
 }
-function adminGenerateCodeBatch(){
+function adminGenerateCodeBatch(tier){
 if(!isAdminSession())return;
-if(!confirm('Generate 10 kode aktivasi baru sekaligus?'))return;
+tier=tier||'full';
+if(!confirm('Generate 10 kode '+tier.toUpperCase()+' baru sekaligus?'))return;
+var prefix=tier==='trial'?'TRIAL':'FULL';
 var list=getActivationCodes();
 var generated=[];
 for(var i=0;i<10;i++){
-var code;do{code=genActivationCode()}while(list.some(function(x){return x.code===code})||generated.indexOf(code)>=0);
+var code;do{code=genActivationCode(prefix)}while(list.some(function(x){return x.code===code})||generated.indexOf(code)>=0);
 generated.push(code);
-list.unshift({code:code,createdAt:new Date().toISOString(),usedBy:null});
+list.unshift({code:code,tier:tier,createdAt:new Date().toISOString(),usedBy:null});
 }
 saveActivationCodes(list);
 render();
-setTimeout(function(){alert('✅ 10 kode baru sudah dibuat.')},50);
+setTimeout(function(){alert('✅ 10 kode '+tier.toUpperCase()+' baru sudah dibuat.')},50);
 }
 function adminCopyCode(code){
 if(navigator.clipboard&&navigator.clipboard.writeText){
@@ -560,14 +626,22 @@ if(users.length===0){
 html+='<div class="empty-state"><p>Belum ada pengguna.</p></div>';
 }else{
 html+='<div style="overflow-x:auto"><table class="instrumen-table" style="font-size:.8rem">';
-html+='<thead><tr><th class="col-no">No</th><th>Nama</th><th>Username</th><th>Kode Aktivasi</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead><tbody>';
+html+='<thead><tr><th class="col-no">No</th><th>Nama</th><th>Username</th><th>Tier</th><th>Kode Aktivasi</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead><tbody>';
 users.forEach(function(u,i){
 var tgl=u.registeredAt?new Date(u.registeredAt).toLocaleDateString('id-ID'):'-';
+var tier=(u.tier||'full');
+var tierLbl='<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">FULL</span>';
+if(u.username==='admin')tierLbl='<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">ADMIN</span>';
+else if(tier==='trial'){
+var daysLeft='∞';if(u.trialExpiresAt){var ms=new Date(u.trialExpiresAt).getTime()-Date.now();daysLeft=ms<=0?'expired':Math.ceil(ms/86400000)+'d';}
+tierLbl='<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">TRIAL ('+daysLeft+')</span>';
+}
 var btn=u.username==='admin'?'<span style="color:#64748b;font-size:.75rem">(admin)</span>':
-'<button class="btn btn-sm btn-warning" onclick="adminResetPassword(\''+u.username+'\')">🔑 Reset</button> <button class="btn btn-sm btn-danger" onclick="adminDeleteUser(\''+u.username+'\')">🗑️</button>';
+'<button class="btn btn-sm btn-success" onclick="adminUpgradeUser(\''+u.username+'\')" title="Upgrade ke FULL">⬆️</button> <button class="btn btn-sm btn-warning" onclick="adminResetPassword(\''+u.username+'\')">🔑</button> <button class="btn btn-sm btn-danger" onclick="adminDeleteUser(\''+u.username+'\')">🗑️</button>';
 html+='<tr><td>'+(i+1)+'</td>';
 html+='<td style="text-align:left">'+escHtml(u.nama||'-')+'</td>';
 html+='<td style="text-align:left;font-family:monospace">'+escHtml(u.username)+'</td>';
+html+='<td>'+tierLbl+'</td>';
 html+='<td style="text-align:left;font-family:monospace;font-size:.75rem">'+escHtml(u.activatedWith||'-')+'</td>';
 html+='<td style="font-size:.75rem">'+tgl+'</td>';
 html+='<td>'+btn+'</td></tr>';
@@ -577,6 +651,14 @@ html+='</tbody></table></div>';
 html+='</div>';
 html+='<div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">✕ Tutup</button></div>';
 return html;
+}
+function adminUpgradeUser(username){
+if(!isAdminSession())return;
+if(username==='admin')return;
+if(!confirm('Upgrade akun '+username+' ke FULL?\n(hapus batasan trial)'))return;
+upgradeUserToFull(username);
+alert('✅ '+username+' berhasil di-upgrade ke FULL.');
+render();
 }
 function adminResetPassword(username){
 if(!isAdminSession())return;
@@ -1090,7 +1172,8 @@ function renderDashboard(){
 const data=getData();
 const madrasahCount=getMadrasah().length;
 const guruCount=getGuru().length;
-let stats='<div class="grid-3" style="margin-bottom:20px">';
+let stats=renderTrialBanner();
+stats+='<div class="grid-3" style="margin-bottom:20px">';
 stats+='<div class="stat-card"><div class="stat-number">'+data.length+'</div><div class="stat-label">Total Supervisi</div></div>';
 stats+='<div class="stat-card"><div class="stat-number">'+madrasahCount+'</div><div class="stat-label">Data Madrasah</div></div>';
 stats+='<div class="stat-card"><div class="stat-number">'+guruCount+'</div><div class="stat-label">Data Guru</div></div>';
@@ -1465,7 +1548,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'.........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -1860,6 +1943,8 @@ return html;
 
 // ===== FORM ACTIONS =====
 function newForm(){
+var chk=canCreateSupervisi();
+if(!chk.ok){alert('⛔ '+chk.reason);return;}
 state.view='form';state.currentStep=0;state.editId=null;
 var pengawas=getPengawas();
 state.formData={identitas:{namaSupervisor:pengawas.nama||'',nipSupervisor:pengawas.nip||'',jabatanSupervisor:pengawas.jabatan||''},perencanaan:{scores:[],catatan:[],manualCatatan:[]},pelaksanaan:{scores:[],catatan:[],manualCatatan:[]},asesmen:{scores:[],catatan:[],manualCatatan:[]},rekap:{}};
@@ -1904,6 +1989,10 @@ if(field==='tindakLanjut')state.formData.rekap[komp].manualTindakLanjut=true;
 
 function saveForm(){
 var data=getData();
+if(state.editId===null){
+var chk=canCreateSupervisi();
+if(!chk.ok){alert('⛔ '+chk.reason);return;}
+}
 if(state.editId!==null){data[state.editId]=state.formData;}
 else{data.push(state.formData);}
 saveData(data);state.view='dashboard';render();
@@ -2030,7 +2119,7 @@ html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'......................
 html+='</tr></table>';
 });
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -2090,7 +2179,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -2162,11 +2251,51 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(id.nipSupervisor||'.........................')+'</p>';
 html+='</td></tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
-function printRekap(){window.print();}
+function printRekap(){applyTrialPrintMark();window.print();}
+function injectTrialWatermark(html){
+var t=getTrialStatus();
+if(!t.isTrial)return html;
+var wm='<style>body::before{content:"TRIAL";position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:8rem;font-weight:900;color:rgba(220,38,38,.18);pointer-events:none;z-index:9998;letter-spacing:1rem;font-family:Arial,sans-serif}.trial-info{position:fixed;bottom:8mm;left:0;right:0;text-align:center;font-size:10pt;color:#dc2626;font-weight:600;font-family:Arial,sans-serif}@media print{body::before{color:rgba(220,38,38,.18)!important;-webkit-print-color-adjust:exact}}</style>';
+var info='<div class="trial-info">Aplikasi mode TRIAL — hubungi Pokjawas Kab. Jember untuk versi FULL</div>';
+if(html.indexOf('</head>')>=0){html=html.replace('</head>',wm+'</head>');}
+if(html.indexOf('</body>')>=0){html=html.replace('</body>',info+'</body>');}
+return html;
+}
+function applyTrialPrintMark(){
+var t=getTrialStatus();
+document.body.classList.toggle('is-trial-print',t.isTrial);
+}
+function renderTrialBanner(){
+var t=getTrialStatus();
+if(!t.isTrial)return'';
+var cls=t.isExpired?'trial-banner expired':'trial-banner';
+var pesan='';
+if(t.isExpired){
+pesan='<span>⛔ <b>Masa TRIAL habis.</b> Hubungi Admin untuk Kode Aktivasi FULL agar bisa lanjut input supervisi.</span>';
+}else if(t.limitReached){
+pesan='<span>⚠️ <b>Limit TRIAL tercapai</b> ('+t.supervisiCount+'/'+TRIAL_MAX_SUPERVISI+' supervisi). Hubungi Admin untuk upgrade ke FULL.</span>';
+}else{
+pesan='<span>⏳ Mode <b>TRIAL</b> — sisa <b>'+t.daysLeft+' hari</b> · sudah pakai <b>'+t.supervisiCount+'/'+TRIAL_MAX_SUPERVISI+'</b> supervisi. Hasil cetak ada watermark TRIAL.</span>';
+}
+return'<div class="'+cls+' no-print">'+pesan+'<button class="btn btn-sm btn-primary" onclick="showUpgradeDialog()">🔓 Masukkan Kode FULL</button></div>';
+}
+function showUpgradeDialog(){
+var kode=prompt('Masukkan Kode Aktivasi FULL untuk upgrade akun ini:');
+if(kode==null)return;
+kode=String(kode).trim().toUpperCase();
+if(!isValidActivationCode(kode)){alert('❌ Kode tidak valid atau sudah dipakai.');return;}
+var tier=getCodeTier(kode);
+if(tier!=='full'){alert('❌ Kode tersebut bukan kode FULL.');return;}
+var s=getSession();if(!s)return;
+upgradeUserToFull(s.username);
+consumeActivationCode(kode,s.username);
+alert('✅ Akun berhasil di-upgrade ke FULL. Selamat menikmati semua fitur!');
+render();
+}
 
 // ===== PDF EXPORT =====
 function getHeaderInfo(formData){
@@ -2365,6 +2494,8 @@ var mc=document.getElementById('modal-container');if(mc)mc.innerHTML='';
 }
 
 function addKokurikulerEntry(){
+var chk=canCreateSupervisi();
+if(!chk.ok){alert('⛔ '+chk.reason);return;}
 var madrasah=document.getElementById('kok-madrasah').value;
 var tanggal=document.getElementById('kok-tanggal').value;
 if(!madrasah){alert('Pilih madrasah terlebih dahulu');return;}
@@ -2619,7 +2750,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'..........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -2686,7 +2817,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'.........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -2958,7 +3089,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'..........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -3025,7 +3156,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'..........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -3320,7 +3451,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'..........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 function cetakIklimMadrasah(idx){
@@ -3386,7 +3517,7 @@ html+='<p style="font-weight:bold;text-decoration:underline;margin-bottom:0">'+(
 html+='<p style="margin-top:0">NIP. '+(pengawas.nip||'..........................')+'</p></td>';
 html+='</tr></table>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print();},500);
 }
 
@@ -3629,7 +3760,7 @@ html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 2</div>';
 html+='</div>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print()},500);
 }
 
@@ -4174,7 +4305,7 @@ html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 3</div>';
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 4</div></div>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print()},500);
 }
 
@@ -4389,7 +4520,7 @@ html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 3</div>';
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 4</div></div>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print()},500);
 }
 
@@ -4609,7 +4740,7 @@ html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 3</div>';
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 4</div></div>';
 html+='</body></html>';
-w.document.write(html);w.document.close();
+w.document.write(injectTrialWatermark(html));w.document.close();
 setTimeout(function(){w.print()},500);
 }
 
@@ -4878,7 +5009,7 @@ html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 3</div>';
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 4</div></div>';
 html+='</body></html>';
-w.document.write(html);w.document.close();setTimeout(function(){w.print();},500);}
+w.document.write(injectTrialWatermark(html));w.document.close();setTimeout(function(){w.print();},500);}
 
 function cetakLaporanPerKKMAGeneric(title,getData,INDIKATOR){
 var data=getData();
@@ -4999,7 +5130,7 @@ html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 3</div>';
 html+='<div style="border:1px dashed #999;height:200px;display:flex;align-items:center;justify-content:center;color:#999">Foto 4</div></div>';
 html+='</body></html>';
-w.document.write(html);w.document.close();setTimeout(function(){w.print();},500);}
+w.document.write(injectTrialWatermark(html));w.document.close();setTimeout(function(){w.print();},500);}
 
 // Kokurikuler
 function renderLaporanKokurikulerPerMadrasahPage(){return renderLaporanPerMadrasahGeneric('Laporan Kokurikuler',getKokurikuler,KOKURIKULER,'cetakLaporanKokurikulerPerMadrasah');}
