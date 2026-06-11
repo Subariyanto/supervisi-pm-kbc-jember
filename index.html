@@ -328,6 +328,16 @@ users[idx].upgradedAt=new Date().toISOString();
 saveUsers(users);
 return true;
 }
+function downgradeUserToTrial(username){
+var users=getUsers();
+var idx=users.findIndex(function(u){return u.username===username});
+if(idx<0)return false;
+users[idx].tier='trial';
+users[idx].trialExpiresAt=new Date(Date.now()+TRIAL_DAYS*86400000).toISOString();
+users[idx].downgradedAt=new Date().toISOString();
+saveUsers(users);
+return true;
+}
 
 function getUsers(){
 try{return JSON.parse(localStorage.getItem(USERS_KEY))||[]}catch(e){return[]}
@@ -694,7 +704,7 @@ var daysLeft='∞';if(u.trialExpiresAt){var ms=new Date(u.trialExpiresAt).getTim
 tierLbl='<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">TRIAL ('+daysLeft+')</span>';
 }
 var btn=u.username==='admin'?'<span style="color:#64748b;font-size:.75rem">(admin)</span>':
-'<button class="btn btn-sm btn-success" onclick="adminUpgradeUser(\''+u.username+'\')" title="Upgrade ke FULL">⬆️</button> <button class="btn btn-sm btn-warning" onclick="adminResetPassword(\''+u.username+'\')">🔑</button> <button class="btn btn-sm btn-danger" onclick="adminDeleteUser(\''+u.username+'\')">🗑️</button>';
+(tier==='full'?'<button class="btn btn-sm btn-warning" onclick="adminDowngradeUser(\''+u.username+'\')" title="Downgrade ke TRIAL">🔻</button> ':'<button class="btn btn-sm btn-success" onclick="adminUpgradeUser(\''+u.username+'\')" title="Upgrade ke FULL">⬆️</button> ')+'<button class="btn btn-sm btn-secondary" onclick="adminResetPassword(\''+u.username+'\')" title="Reset password">🔑</button> <button class="btn btn-sm btn-danger" onclick="adminDeleteUser(\''+u.username+'\')" title="Hapus akun">🗑️</button>';
 html+='<tr><td>'+(i+1)+'</td>';
 html+='<td style="text-align:left">'+escHtml(u.nama||'-')+'</td>';
 html+='<td style="text-align:left;font-family:monospace">'+escHtml(u.username)+'</td>';
@@ -715,6 +725,14 @@ if(username==='admin')return;
 if(!confirm('Upgrade akun '+username+' ke FULL?\n(hapus batasan trial)'))return;
 upgradeUserToFull(username);
 alert('✅ '+username+' berhasil di-upgrade ke FULL.');
+render();
+}
+function adminDowngradeUser(username){
+if(!isAdminSession())return;
+if(username==='admin')return;
+if(!confirm('Downgrade akun '+username+' ke TRIAL?\n\n⚠️ Akun akan kembali ke mode TRIAL '+TRIAL_DAYS+' hari + max '+TRIAL_MAX_SUPERVISI+' supervisi.\nData supervisi yang sudah dibuat tidak ikut dihapus.'))return;
+downgradeUserToTrial(username);
+alert('✅ '+username+' berhasil di-downgrade ke TRIAL ('+TRIAL_DAYS+' hari).');
 render();
 }
 function adminResetPassword(username){
