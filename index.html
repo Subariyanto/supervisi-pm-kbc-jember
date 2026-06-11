@@ -195,6 +195,7 @@ canvas{max-width:100%;margin:20px 0}
 <li onclick="navigate('ubah-password')" data-nav="ubah-password">&#128274; Ubah Password</li>
 <li id="menuKodeAktivasi" onclick="navigate('kode-aktivasi')" data-nav="kode-aktivasi" style="display:none">&#128273; Kode Aktivasi</li>
 <li id="menuKelolaUser" onclick="navigate('kelola-user')" data-nav="kelola-user" style="display:none">&#128101; Kelola Pengguna</li>
+<li id="menuPurchase" onclick="navigate('pengaturan-pembelian')" data-nav="pengaturan-pembelian" style="display:none">&#128176; Pengaturan Pembelian</li>
 <li onclick="navigate('backup-restore')" data-nav="backup-restore">&#128190; Export/Backup &amp; Restore</li>
 <li onclick="window.open('panduan.html','_blank')" style="border-top:1px solid rgba(255,255,255,.1);margin-top:10px">&#128214; Panduan</li>
 <li onclick="doLogout()" style="border-top:1px solid rgba(255,255,255,.1);margin-top:10px;color:#f87171">&#128682; Logout</li>
@@ -250,6 +251,42 @@ var pfx=prefix?String(prefix).toUpperCase()+'-':'';
 return pfx+p(4)+'-'+p(4)+'-'+p(4);
 }
 function isAdminSession(){var s=getSession();return s&&s.username==='admin'}
+
+// ===== PURCHASE SETTINGS =====
+const PURCHASE_KEY='supervisi_purchase_settings';
+function getPurchaseSettings(){
+var def={
+waNumber:'',
+harga:'',
+bankInfo:'',
+appName:'Supervisi PM-KBC',
+orderTemplate:'Halo Pak Subariyanto, saya ingin membeli Kode Aktivasi FULL aplikasi {APP}.\n\nNama: \nNIP / Asal Madrasah: \nKKMA: \n\nMohon info cara pembayarannya. Terima kasih.',
+sendTemplate:'Assalamualaikum Bapak/Ibu,\n\nTerima kasih sudah membeli lisensi {APP}.\n\nBerikut Kode Aktivasi FULL Bapak/Ibu:\n\n*{KODE}*\n\nCara pakai:\n1. Buka aplikasi: {URL}\n2. Login (atau daftar pakai kode trial dulu)\n3. Klik banner kuning di dashboard → "Masukkan Kode FULL"\n4. Tempel kode di atas → selesai ✅\n\nKode ini sekali pakai. Simpan baik-baik.\n\nSalam,\nSubariyanto\nKetua Pokjawas Madrasah Kab. Jember',
+appUrl:'https://subariyanto.github.io/supervisi-pm-kbc-jember/'
+};
+try{var saved=JSON.parse(localStorage.getItem(PURCHASE_KEY))||{};return Object.assign(def,saved);}catch(e){return def;}
+}
+function savePurchaseSettings(s){localStorage.setItem(PURCHASE_KEY,JSON.stringify(s))}
+function normalizeWa(num){
+if(!num)return'';
+var d=String(num).replace(/[^0-9]/g,'');
+if(d.length===0)return'';
+if(d[0]==='0')d='62'+d.substring(1);
+if(d.substring(0,2)!=='62')d='62'+d;
+return d;
+}
+function buildWaLink(num,text){
+var n=normalizeWa(num);
+if(!n)return'';
+return'https://wa.me/'+n+(text?'?text='+encodeURIComponent(text):'');
+}
+function openWaOrder(){
+var s=getPurchaseSettings();
+if(!s.waNumber){alert('⚠️ Nomor WA belum dikonfigurasi. Hubungi admin aplikasi.');return;}
+var text=s.orderTemplate.replace(/\{APP\}/g,s.appName);
+var url=buildWaLink(s.waNumber,text);
+window.open(url,'_blank');
+}
 function getCurrentUser(){
 var s=getSession();
 if(!s)return null;
@@ -330,6 +367,8 @@ var mKode=document.getElementById('menuKodeAktivasi');
 if(mKode)mKode.style.display=isAdmin?'':'none';
 var mUser=document.getElementById('menuKelolaUser');
 if(mUser)mUser.style.display=isAdmin?'':'none';
+var mPur=document.getElementById('menuPurchase');
+if(mPur)mPur.style.display=isAdmin?'':'none';
 }
 
 function hideApp(){
@@ -347,7 +386,8 @@ card.innerHTML='<h2>🔐 Login</h2>'+
 '<div class="form-group"><label>Username</label><input type="text" id="loginUsername" placeholder="Masukkan username" autocomplete="username"></div>'+
 '<div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Masukkan password" autocomplete="current-password"></div>'+
 '<button class="btn-auth" onclick="doLogin()">Login</button>'+
-'<div class="auth-link">Belum punya akun? <a onclick="showRegister()">Daftar</a></div>';
+'<div class="auth-link">Belum punya akun? <a onclick="showRegister()">Daftar</a></div>'+
+'<div class="auth-link" style="margin-top:6px">🛍️ <a onclick="openBeliLisensiPublic()">Beli Lisensi FULL</a></div>';
 setTimeout(function(){document.getElementById('loginUsername').focus()},100);
 // Enter key support
 setTimeout(function(){
@@ -539,7 +579,7 @@ var status=c.revoked?'<span style="color:#dc2626">🚫 Dicabut</span>':(c.usedBy
 var tgl=c.usedAt?new Date(c.usedAt).toLocaleString('id-ID'):(c.createdAt?'dibuat: '+new Date(c.createdAt).toLocaleDateString('id-ID'):'-');
 var tier=c.tier||'full';
 var tierLbl=tier==='trial'?'<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">TRIAL</span>':'<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600">FULL</span>';
-var btn=c.usedBy||c.revoked?'<button class="btn btn-sm btn-danger" onclick="adminDeleteCode('+i+')">🗑️</button>':'<button class="btn btn-sm btn-warning" onclick="adminRevokeCode('+i+')">🚫</button> <button class="btn btn-sm btn-secondary" onclick="adminCopyCode(\''+c.code+'\')">📋</button>';
+var btn=c.usedBy||c.revoked?'<button class="btn btn-sm btn-danger" onclick="adminDeleteCode('+i+')">🗑️</button>':'<button class="btn btn-sm btn-warning" onclick="adminRevokeCode('+i+')" title="Revoke">🚫</button> <button class="btn btn-sm btn-secondary" onclick="adminCopyCode(\''+c.code+'\')" title="Copy">📋</button> <button class="btn btn-sm btn-success" onclick="adminKirimWa(\''+c.code+'\')" title="Kirim via WA">📱 WA</button>';
 html+='<tr><td>'+(i+1)+'</td>';
 html+='<td style="font-family:monospace;font-weight:600;text-align:left">'+escHtml(c.code)+'</td>';
 html+='<td>'+tierLbl+'</td>';
@@ -586,6 +626,17 @@ function adminCopyCode(code){
 if(navigator.clipboard&&navigator.clipboard.writeText){
 navigator.clipboard.writeText(code).then(function(){alert('📋 Disalin: '+code)},function(){prompt('Salin kode:',code)});
 }else{prompt('Salin kode:',code);}
+}
+function adminKirimWa(code){
+var s=getPurchaseSettings();
+var nomor=prompt('Masukkan nomor WA penerima (misal 0812xxx atau 62812xxx):');
+if(nomor==null)return;
+nomor=String(nomor).trim();
+if(!nomor){alert('Nomor kosong.');return;}
+var text=s.sendTemplate.replace(/\{KODE\}/g,code).replace(/\{APP\}/g,s.appName).replace(/\{URL\}/g,s.appUrl);
+var url=buildWaLink(nomor,text);
+if(!url){alert('Nomor WA tidak valid.');return;}
+window.open(url,'_blank');
 }
 function adminRevokeCode(idx){
 if(!isAdminSession())return;
@@ -681,6 +732,84 @@ if(!confirm('Hapus akun '+username+'?\nData supervisi yang sudah dimasukkan tida
 var users=getUsers().filter(function(u){return u.username!==username});
 saveUsers(users);
 render();
+}
+
+// ===== PENGATURAN PEMBELIAN (ADMIN) =====
+function renderPengaturanPembelian(){
+if(!isAdminSession())return '<div class="card"><h2>⛔ Akses Ditolak</h2></div>';
+var s=getPurchaseSettings();
+var html='<div class="card">';
+html+='<h2 style="margin-bottom:10px">💰 Pengaturan Pembelian Lisensi</h2>';
+html+='<p style="color:#64748b;font-size:.85rem;margin-bottom:15px">Data ini muncul di halaman "Beli Lisensi" dan template WA. Bisa pakai placeholder <code>{KODE}</code>, <code>{APP}</code>, <code>{URL}</code>.</p>';
+html+='<div class="form-group"><label>📱 Nomor WA Penjualan</label><input type="text" id="pNomorWa" value="'+escHtml(s.waNumber)+'" placeholder="Misal: 6281234567890"><small style="color:#64748b">Format internasional tanpa tanda + atau spasi (62 + nomor tanpa 0).</small></div>';
+html+='<div class="form-group"><label>💵 Harga Lisensi FULL</label><input type="text" id="pHarga" value="'+escHtml(s.harga)+'" placeholder="Misal: Rp 50.000 (lifetime / 1 akun)"></div>';
+html+='<div class="form-group"><label>🏦 Info Cara Bayar</label><textarea id="pBank" rows="4" placeholder="Misal:&#10;BRI 0123-4567-8901 a.n. Subariyanto&#10;Atau QRIS / DANA: 0812xxxx">'+escHtml(s.bankInfo)+'</textarea></div>';
+html+='<div class="form-group"><label>📝 Nama Aplikasi (di pesan WA)</label><input type="text" id="pAppName" value="'+escHtml(s.appName)+'"></div>';
+html+='<div class="form-group"><label>🌐 URL Aplikasi</label><input type="text" id="pUrl" value="'+escHtml(s.appUrl)+'"></div>';
+html+='<div class="form-group"><label>✏️ Template Pesan Pemesanan (user → admin)</label><textarea id="pOrderTpl" rows="6">'+escHtml(s.orderTemplate)+'</textarea><small style="color:#64748b">Pakai {APP} untuk nama aplikasi.</small></div>';
+html+='<div class="form-group"><label>✏️ Template Pesan Pengiriman Kode (admin → user)</label><textarea id="pSendTpl" rows="10">'+escHtml(s.sendTemplate)+'</textarea><small style="color:#64748b">Pakai {KODE}, {APP}, {URL} sebagai placeholder.</small></div>';
+html+='<div class="btn-group"><button class="btn btn-primary" onclick="savePengaturanPembelian()">💾 Simpan</button>';
+html+='<button class="btn btn-secondary" onclick="navigate(\'beli-lisensi\')">👀 Preview Halaman Beli</button>';
+html+='</div>';
+html+='</div>';
+html+='<div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">✕ Tutup</button></div>';
+return html;
+}
+function savePengaturanPembelian(){
+var s=getPurchaseSettings();
+s.waNumber=normalizeWa(document.getElementById('pNomorWa').value.trim());
+s.harga=document.getElementById('pHarga').value.trim();
+s.bankInfo=document.getElementById('pBank').value.trim();
+s.appName=document.getElementById('pAppName').value.trim()||'Supervisi PM-KBC';
+s.appUrl=document.getElementById('pUrl').value.trim()||'https://subariyanto.github.io/supervisi-pm-kbc-jember/';
+s.orderTemplate=document.getElementById('pOrderTpl').value;
+s.sendTemplate=document.getElementById('pSendTpl').value;
+savePurchaseSettings(s);
+alert('✅ Pengaturan pembelian disimpan.');
+render();
+}
+function renderBeliLisensi(){
+var s=getPurchaseSettings();
+var html='<div class="card" style="max-width:700px;margin:0 auto">';
+html+='<h2 style="margin-bottom:10px;text-align:center">🛍️ Beli Lisensi FULL</h2>';
+html+='<p style="color:#64748b;text-align:center;margin-bottom:25px">Aktifkan semua fitur tanpa batasan trial.</p>';
+html+='<div style="background:linear-gradient(135deg,#f0f9ff,#f0fdfa);border:2px solid #0ea5e9;border-radius:12px;padding:20px;margin-bottom:20px">';
+html+='<h3 style="color:#0d9488;margin-bottom:10px">✨ Yang Anda Dapatkan dengan Lisensi FULL:</h3>';
+html+='<ul style="padding-left:20px;line-height:1.8;color:#374151">';
+html+='<li>✅ Tanpa batas waktu (akun aktif selamanya)</li>';
+html+='<li>✅ Tanpa batas jumlah supervisi</li>';
+html+='<li>✅ Cetak laporan tanpa watermark TRIAL</li>';
+html+='<li>✅ Semua menu (Pembelajaran, Kokurikuler, Ekstrakurikuler, Iklim Madrasah)</li>';
+html+='<li>✅ Backup & Restore data</li>';
+html+='<li>✅ Update aplikasi otomatis</li>';
+html+='</ul></div>';
+if(s.harga){html+='<div style="text-align:center;margin-bottom:20px"><div style="font-size:.85rem;color:#64748b">Harga Lisensi</div><div style="font-size:2rem;font-weight:700;color:#0d9488">'+escHtml(s.harga)+'</div></div>';}
+html+='<div style="background:#fff7ed;border:1px solid #f59e0b;border-radius:12px;padding:18px;margin-bottom:20px">';
+html+='<h4 style="color:#92400e;margin-bottom:8px">📋 Cara Membeli:</h4>';
+html+='<ol style="padding-left:20px;line-height:1.8;color:#78350f">';
+html+='<li>Klik tombol <b>📲 Pesan via WhatsApp</b> di bawah</li>';
+html+='<li>Lakukan pembayaran sesuai instruksi admin</li>';
+html+='<li>Kirim bukti transfer via WA</li>';
+html+='<li>Kode Aktivasi FULL dikirim balik via WA dalam <b>1–6 jam</b> (jam kerja)</li>';
+html+='<li>Login aplikasi → klik banner trial → <b>Masukkan Kode FULL</b> → selesai ✅</li>';
+html+='</ol></div>';
+if(s.bankInfo){html+='<div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:18px;margin-bottom:20px"><h4 style="color:#475569;margin-bottom:8px">🏦 Info Pembayaran:</h4><pre style="white-space:pre-wrap;font-family:inherit;color:#334155;margin:0">'+escHtml(s.bankInfo)+'</pre></div>';}
+html+='<div style="text-align:center">';
+if(s.waNumber){html+='<button class="btn btn-success" style="font-size:1rem;padding:14px 28px" onclick="openWaOrder()">📲 Pesan via WhatsApp</button>';}
+else{html+='<div style="color:#dc2626;font-weight:600">⚠️ Nomor WA admin belum dikonfigurasi.</div>';}
+html+='</div>';
+html+='</div>';
+var isLogin=getSession();
+if(isLogin){html+='<div class="no-print" style="margin-top:20px;text-align:right"><button class="btn btn-danger" onclick="navigate(\'dashboard\')" style="padding:8px 20px">✕ Tutup</button></div>';}
+else{html+='<div class="no-print" style="margin-top:20px;text-align:center"><button class="btn btn-primary" onclick="showLogin()" style="padding:8px 20px">← Kembali ke Login</button></div>';}
+return html;
+}
+function openBeliLisensiPublic(){
+// dipanggil dari halaman login (sebelum auth)
+document.getElementById('authOverlay').style.display='none';
+document.getElementById('appLayout').style.display='';
+var app=document.getElementById('app');
+if(app){app.innerHTML=renderBeliLisensi();var t=document.getElementById('pageTitle');if(t)t.innerHTML='🛍️ Beli Lisensi';}
 }
 
 // ===== CONSTANTS =====
@@ -1153,6 +1282,8 @@ case 'laporan-iklim-madrasah-kkma':app.innerHTML=renderLaporanIklimMadrasahPerKK
 case 'ubah-password':app.innerHTML=renderUbahPassword();break;
 case 'kode-aktivasi':app.innerHTML=renderKodeAktivasi();break;
 case 'kelola-user':app.innerHTML=renderKelolaUser();break;
+case 'pengaturan-pembelian':app.innerHTML=renderPengaturanPembelian();break;
+case 'beli-lisensi':app.innerHTML=renderBeliLisensi();break;
 case 'backup-restore':app.innerHTML=renderBackupRestore();break;
 default:app.innerHTML=renderDashboard();
 }
@@ -2281,7 +2412,7 @@ pesan='<span>⚠️ <b>Limit TRIAL tercapai</b> ('+t.supervisiCount+'/'+TRIAL_MA
 }else{
 pesan='<span>⏳ Mode <b>TRIAL</b> — sisa <b>'+t.daysLeft+' hari</b> · sudah pakai <b>'+t.supervisiCount+'/'+TRIAL_MAX_SUPERVISI+'</b> supervisi. Hasil cetak ada watermark TRIAL.</span>';
 }
-return'<div class="'+cls+' no-print">'+pesan+'<button class="btn btn-sm btn-primary" onclick="showUpgradeDialog()">🔓 Masukkan Kode FULL</button></div>';
+return'<div class="'+cls+' no-print">'+pesan+'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-sm btn-success" onclick="navigate(\'beli-lisensi\')">🛍️ Beli Lisensi</button><button class="btn btn-sm btn-primary" onclick="showUpgradeDialog()">🔓 Masukkan Kode FULL</button></div></div>';
 }
 function showUpgradeDialog(){
 var kode=prompt('Masukkan Kode Aktivasi FULL untuk upgrade akun ini:');
