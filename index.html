@@ -193,6 +193,16 @@ canvas{max-width:100%;margin:20px 0}
 <li onclick="navigate('laporan-iklim-madrasah-madrasah')" data-nav="laporan-iklim-madrasah-madrasah">&#128196; Laporan Per Madrasah</li>
 
 </ul>
+<li class="menu-section" style="padding:8px 20px;font-size:.7rem;color:rgba(14,165,233,.85);font-weight:700;letter-spacing:.5px;border-top:1px solid rgba(255,255,255,.08);margin-top:6px;cursor:default">DATA RA (RAUDHATUL ATHFAL)</li>
+<li onclick="navigate('madrasah-ra')" data-nav="madrasah-ra">&#127979; Data Madrasah RA</li>
+<li onclick="navigate('guru-ra')" data-nav="guru-ra">&#128104;&#8205;&#127891; Data Guru RA</li>
+<li class="submenu-toggle" onclick="toggleSubmenu('sub-supervisi-ra')">&#127793; Supervisi Pembelajaran RA &#9662;</li>
+<ul class="submenu" id="sub-supervisi-ra">
+<li onclick="navigate('supervisi-ra')" data-nav="supervisi-ra">&#128221; Input Supervisi RA</li>
+<li onclick="navigate('rekap-ra')" data-nav="rekap-ra">&#128202; Rekap Hasil RA</li>
+<li onclick="navigate('cetak-ra')" data-nav="cetak-ra">&#128424; Cetak Hasil RA</li>
+<li onclick="navigate('laporan-ra')" data-nav="laporan-ra">&#128196; Laporan RA</li>
+</ul>
 <li onclick="navigate('ubah-password')" data-nav="ubah-password">&#128274; Ubah Password</li>
 <li id="menuKodeAktivasi" onclick="navigate('kode-aktivasi')" data-nav="kode-aktivasi" style="display:none">&#128273; Kode Aktivasi</li>
 <li id="menuKelolaUser" onclick="navigate('kelola-user')" data-nav="kelola-user" style="display:none">&#128101; Kelola Pengguna</li>
@@ -302,7 +312,7 @@ if(!u)return{tier:'full',isTrial:false,isExpired:false,daysLeft:Infinity,supervi
 if(u.username==='admin')return{tier:'admin',isTrial:false,isExpired:false,daysLeft:Infinity,supervisiCount:0,limitReached:false};
 var tier=u.tier||'full';
 if(tier!=='trial')return{tier:'full',isTrial:false,isExpired:false,daysLeft:Infinity,supervisiCount:0,limitReached:false};
-var count=0;try{count=(JSON.parse(localStorage.getItem(APP_KEY))||[]).length}catch(e){}
+var count=0;try{var u1=JSON.parse(localStorage.getItem(APP_KEY))||[];var u2=JSON.parse(localStorage.getItem(APP_KEY_RA))||[];count=u1.length+u2.length;}catch(e){}
 var daysLeft=Infinity;var isExpired=false;
 if(u.trialExpiresAt){
 var ms=new Date(u.trialExpiresAt).getTime()-Date.now();
@@ -838,8 +848,11 @@ if(app){app.innerHTML=renderBeliLisensi();var t=document.getElementById('pageTit
 
 // ===== CONSTANTS =====
 const APP_KEY='supervisi_data_v1';
+const APP_KEY_RA='supervisi_pembelajaran_ra_v1';
 const MADRASAH_KEY='supervisi_madrasah';
+const MADRASAH_KEY_RA='supervisi_madrasah_ra';
 const GURU_KEY='supervisi_guru';
+const GURU_KEY_RA='supervisi_guru_ra';
 const PENGAWAS_KEY='supervisi_pengawas';
 const INDIKATOR_KEY='supervisi_indikator';
 
@@ -975,6 +988,81 @@ const PENGGALIAN_EKSTRAKURIKULER=[
 '<b>Observasi:</b><ul><li>Suasana kegiatan aman dan nyaman</li></ul><b>Wawancara:</b><ul><li>"Apakah siswa merasa nyaman?"</li></ul>'
 ];
 
+// ===== DATA SUPERVISI PEMBELAJARAN RA =====
+const PERENCANAAN_RA=[
+'Dalam identifikasi Rencana Pembelajaran berorientasi pada penanaman karakter sesuai DPL dan Topik panca cinta',
+'Guru menyusun Tujuan Pembelajaran yang bermakna dan mengintegrasikan pengetahuan dan keterampilan dengan nilai cinta',
+'Guru menyusun desain Perencanaan yang mengimplementasikan Pembelajaran Mendalam',
+'Guru mengintegrasikan Panca Cinta pada langkah-langkah pembelajaran sesuai Sintaks Model Pembelajaran',
+'Guru menyusun langkah-langkah pembelajaran sesuai Prinsip Pembelajaran Mendalam',
+'Guru menyusun strategi pembelajaran inovatif dan memanfaatkan media, APE, dan sumber belajar bervariasi termasuk teknologi sesuai konteks madrasah',
+'Guru merencanakan asesmen formatif untuk refleksi diri murid dan refleksi terhadap proses pembelajaran',
+'Guru merencanakan asesmen formatif untuk strategi diferensiasi dan memantau/memperbaiki perkembangan belajar murid',
+'Guru merencanakan asesmen sumatif untuk menilai ketercapaian tujuan pembelajaran murid pada akhir pembelajaran',
+'Guru menyusun program remedial dan pengayaan berdasarkan analisis hasil belajar murid'
+];
+
+const PENGGALIAN_PERENCANAAN_RA=[
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Hasil identifikasi kesiapan murid</li><li>Guru mencantumkan Dimensi Profil Lulusan (DPL) yang relevan dengan tujuan pembelajaran</li><li>Karakteristik materi pelajaran</li><li>Guru mencantumkan nilai Panca Cinta yang relevan dengan materi dan aktivitas pembelajaran</li><li>Guru menuliskan materi integrasi KBC yang relevan dengan materi pembelajaran</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru merumuskan tujuan pembelajaran yang spesifik, terukur memuat kompetensi, lingkup materi, konteks (karakter dan nilai panca cinta) serta pengalaman belajar mendalam sesuai kebutuhan peserta didik</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru merumuskan kerangka pembelajaran memuat praktik pedagogis, kemitraan Pembelajaran, Lingkungan Pembelajaran, dan Pemanfaatan Digital</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru menyusun langkah-langkah pembelajaran dengan mengintegrasikan nilai cinta kedalam sintak model pembelajaran melalui pengalaman pembelajaran Mendalam murid yaitu: Memahami, Mengaplikasi dan Merefleksi</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru menyusun langkah-langkah pembelajaran berdasarkan Prinsip Belajar yaitu Berkesadaran, Bermakna, dan Menggembirakan</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru merencanakan strategi pembelajaran inovatif</li><li>Guru menyusun media pembelajaran yang efektif dan relevan dengan materi</li><li>Guru membuat dan menggunakan APE yang efektif dan relevan dengan materi dan tujuan pembelajaran</li><li>Guru memanfaatkan teknologi tepat guna dan mendukung pembelajaran</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru menyusun Lembar refleksi guru</li><li>Guru menyusun Lembar refleksi murid (dengan ceklist dan catatan anekdot)</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru menyusun lembar asesmen disusun autentik yang sejalan dengan tujuan pembelajaran yang holistik dan terintegrasi dengan topik panca cinta dan DPL</li><li>Rencana strategi pembelajaran defrensiasi</li><li>Bentuk asesmen berorientasi pada proses dan perkembangan</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru merancang asesmen autentik yang sejalan dengan tujuan pembelajaran yang holistik dan terintegrasi dengan DPL dan topik panca cinta</li><li>Instrumen asesmen dilengkapi rubrik dan mencerminkan aspek pengetahuan, keterampilan dan karakter sesuai DPL dan panca cinta</li></ul>',
+'<b>Melalui telaah dokumen RPP:</b><ul><li>Guru menyusun program/rencana Remedial/pengayaan</li><li>Instrumen remidi dan pengayaan</li></ul>'
+];
+
+const PELAKSANAAN_RA=[
+'Pembelajaran diawali dengan membangun koneksi emosional dan spiritual sesuai DPL dan panca cinta',
+'Guru mampu menciptakan suasana belajar yang aman, nyaman dan mendukung tercapainya tujuan pembelajaran berbasis cinta',
+'Guru memfasilitasi murid aktif terlibat dalam pengalaman belajar memahami, mengaplikasi, merefleksi dalam mengembangkan kemampuannya melalui aktivitas yang menumbuhkan rasa ingin tahu',
+'Guru melaksanakan langkah-langkah pembelajaran secara sistematis dengan menerapkan prinsip Pembelajaran Mendalam sehingga murid memahami tujuan belajar dan memperoleh pengalaman belajar yang kontekstual dan menyenangkan sesuai nilai-nilai KBC dan DPL',
+'Interaksi guru-murid yang setara dan menghargai dengan menunjukkan pemberdayaan dan pemahaman terhadap perbedaan murid',
+'Guru menyesuaikan proses pembelajaran berdasarkan asesmen formatif awal tentang kesiapan, kondisi, minat, dan profil belajar murid',
+'Guru melakukan stimulasi tumbuhnya refleksi individu/kelompok terhadap hasil pembelajaran dan perasaan murid',
+'Guru menerapkan strategi pembelajaran inovatif dan memanfaatkan media dan sumber belajar yang bervariasi',
+'Pembelajaran menguatkan keimanan dan ketakwaan murid pada Tuhan YME untuk membangun akhlak yang mulia',
+'Guru menutup pembelajaran dengan melakukan refleksi bermakna terhadap hasil pembelajaran'
+];
+
+const PENGGALIAN_PELAKSANAAN_RA=[
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Guru membuka pembelajaran dengan apersepsi dan refleksi untuk menstimulasi tumbuhnya sikap positif, rasa syukur dan penuh kasih sayang</li><li>Guru memberikan pertanyaan pemantik untuk menstimulasi tumbuhnya sikap empati</li><li>Guru menyampaikan tujuan pembelajaran mengaitkan dengan nilai panca cinta dan DPL</li></ul><b>Melalui telaah dokumen:</b><ul><li>Dokumen Tujuan pembelajaran yang menghubungkan dengan panca cinta dan DPL</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Guru menerapkan pendekatan disiplin positif dan dialogis ketika mengelola perilaku murid</li><li>Guru membangun komunikasi yang mengedepankan koneksi sebelum koreksi</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Kesepakatan kelas yang disusun dengan melibatkan murid secara bermakna</li><li>Dokumen/catatan penegakan disiplin</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Murid terlibat aktif dalam pembelajaran yang menumbuhkan kemampuan bernalar dan memecahkan masalah</li><li>Murid tampak percaya diri dan berani mengekspresikan pendapat</li><li>Guru memberi ruang dialog, umpan balik, refleksi, dan berpikir kritis</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>RPP yang memuat TP membangun pola pikir berkembang</li><li>Rapor, hasil asesmen, hasil karya, foto berseri, catatan anekdot, dan cek list yang diberikan umpan balik</li><li>Lembar refleksi murid dan guru</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Guru menyampaikan tujuan pembelajaran, membangun apersepsi kontekstual, menciptakan suasana belajar yang menyenangkan, melibatkan murid secara aktif</li><li>Murid menunjukkan antusiasme, keceriaan, dan rasa saling peduli selama pembelajaran</li><li>Tidak tampak wajah murid tertekan, suasana kelas positif dan menyenangkan</li><li>Murid saling membantu teman yang mengalami kesulitan</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Pembelajaran menstimulasi tumbuhnya kolaborasi (peer learning)</li><li>Kegiatan belajar menstimulasi tumbuhnya empati, penghargaan diri, dan penghargaan sesama</li><li>Menstimulasi tumbuhnya komunikasi dua arah yang hangat dan saling menghormati dan menghargai</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>RPP kolaboratif learning</li><li>Hasil asesmen karakter nilai cinta dan DPL</li><li>Foto kegiatan kolaborasi</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Guru melakukan strategi diferensiasi dan personalisasi belajar</li><li>Guru menggunakan beragam metode, media, APE, (visual, audio, kinestetik)</li><li>Guru mendampingi dan memberikan stimulasi sesuai kebutuhan murid</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>RPP pembelajaran mendalam yang berdiferensiasi</li><li>Hasil asesmen awal, catatan observasi, refleksi murid</li><li>Hasil karya murid yang diberikan umpan balik</li><li>Catatan komunikasi atau diskusi dengan wali murid</li></ul>',
+'<b>Melalui pengamatan pembelajaran:</b><ul><li>Guru menstimulasi tumbuhnya refleksi belajar secara lisan atau tertulis</li><li>Terjadi interaksi antar murid dan guru</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Lembar refleksi guru</li><li>Lembar refleksi murid (Cek List dan Catatan anekdot)</li></ul>',
+'<b>Melalui pengamatan, wawancara dengan guru dan murid tentang:</b><ul><li>Strategi pembelajaran inovatif</li><li>Media dan APE digunakan secara efektif dan relevan dengan materi</li><li>Teknologi digunakan secara tepat guna dan mendukung pembelajaran</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>RPP yang memenuhi komponen</li></ul>',
+'<b>Melalui pengamatan pembelajaran:</b><ul><li>Praktik pembelajaran menstimulasi murid memaknai dan merefleksikan ajaran agama</li><li>Guru membangun keterhubungan antara materi dengan nilai cinta Allah dan RasulNya dan DPL yang ke 1</li></ul><b>Melalui telaah data dokumen:</b><ul><li>RPP/Modul Ajar menentukan dimensi profil lulusan dan mencantumkan nilai cinta kepada Allah dan RasulNya dan DPL yang ke 1</li><li>Instrumen dan Rubrik asesmen</li><li>Hasil asesmen</li></ul>',
+'<b>Melalui pengamatan pembelajaran:</b><ul><li>Guru dan murid melakukan refleksi</li><li>Guru bersama murid berdoa sebagai penegas nilai cinta</li><li>Guru menutup dengan penguatan komitmen aksi nyata sesuai nilai cinta</li><li>Guru menutup dengan afirmasi positif dan apresiasi personal</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Lembar refleksi guru</li><li>Lembar refleksi murid (Catatan Anekdot)</li></ul>'
+];
+
+const EVALUASI_RA=[
+'Guru menentukan Teknik asesmen dan menyusun instrumen penilaian (soal/alat penilaian yang bervariasi) dan sesuai dengan tujuan pembelajaran',
+'Guru menyusun instrumen asesmen sesuai dengan level kognitif',
+'Asesmen dilakukan secara berkala dan Hasil asesmen digunakan untuk menentukan strategi pembelajaran selanjutnya',
+'Guru melaksanakan penilaian dengan memanfaatkan teknologi informasi dan/atau sumberdaya yang tersedia di lingkungan belajar',
+'Guru melaksanakan analisis hasil penilaian',
+'Guru memberikan umpan balik dalam rangka membangun upaya perbaikan proses pembelajaran bersama',
+'Guru melakukan stimulasi refleksi individu/kelompok terhadap hasil pembelajaran dan perasaan murid',
+'Guru menggunakan asesmen sumatif untuk memantau perkembangan belajar murid'
+];
+
+const PENGGALIAN_EVALUASI_RA=[
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Kesesuaian dalam penggunaan instrumen penilaian dengan tujuan pembelajaran, keterlibatan murid dalam berbagai bentuk asesmen sesuai prinsip PM, KBC dan DPL</li><li>Guru melaksanakan penilaian secara objektif dan variatif selama proses maupun akhir pembelajaran</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Telaah modul ajar/RPP, rubrik penilaian, lembar observasi/portofolio/unjuk kerja/cek list/catatan anekdot dan/atau bentuk asesmen lainnya</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Guru melaksanakan evaluasi pembelajaran yang mendorong murid berpikir kritis, kreatif, analitis, reflektif, dan mampu memecahkan masalah kontekstual, serta memperlihatkan penguatan karakter nilai Panca Cinta</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Rubrik penilaian, modul ajar/RPP, dan instrumen asesmen lainnya</li></ul>',
+'<b>Melalui pengamatan pembelajaran tampak:</b><ul><li>Guru melaksanakan asesmen secara berkala</li><li>Guru menggunakan hasil asesmen untuk memberikan umpan balik, remedial, pengayaan, diferensiasi pembelajaran</li><li>Guru melaporkan capaian hasil pembelajaran</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Telaah modul ajar/RPP, jadwal dan instrumen asesmen formatif/sumatif, hasil analisis penilaian, daftar ketuntasan belajar, program remedial dan pengayaan</li></ul>',
+'<b>Melalui pengamatan dan wawancara dengan murid tampak:</b><ul><li>Guru melaksanakan penilaian dengan memanfaatkan teknologi informasi dan/atau sumber daya yang tersedia di lingkungan belajar yang bermakna dan menyenangkan sesuai prinsip KBC</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Telaah RPP, instrumen penilaian, hasil asesmen, media evaluasi berbasis teknologi, serta pemanfaatan lingkungan sekitar sebagai sumber asesmen</li></ul>',
+'<b>Melalui pengamatan tampak:</b><ul><li>Guru melakukan analisis hasil penilaian</li><li>Guru menggunakan hasil analisis sebagai dasar pemberian umpan balik, remedial, pengayaan, dan perbaikan strategi pembelajaran sesuai prinsip KBC</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Analisis hasil penilaian, rekap pengolahan nilai hasil asesmen, daftar ketuntasan belajar, jurnal/refleksi guru, program remedial dan pengayaan</li></ul>',
+'<b>Melalui pengamatan tampak:</b><ul><li>Guru memberikan umpan balik yang memotivasi murid untuk memperbaiki proses dan hasil belajar</li><li>Guru melakukan refleksi, dan terlibat aktif dalam perbaikan pembelajaran sesuai prinsip KBC</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Telaah hasil asesmen formatif, catatan umpan balik guru, cek list dan catatan anekdot, modul ajar/RPP</li></ul>',
+'<b>Melalui pengamatan pembelajaran:</b><ul><li>Guru menstimulasi kegiatan refleksi individu maupun kelompok terkait hasil pembelajaran, pengalaman belajar, dan perasaan murid secara terbuka, aman, dan menghargai pendapat murid</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Telaah RPP, cek list, catatan anekdot, foto/video kegiatan refleksi</li></ul>',
+'<b>Melalui telaah data dokumen tentang:</b><ul><li>Guru menggunakan hasil asesmen sumatif untuk memantau perkembangan belajar murid, mengidentifikasi capaian dan kesulitan belajar</li><li>Guru melakukan remedial dan pengayaan</li></ul><b>Melalui telaah dokumen tentang:</b><ul><li>Dokumen hasil asesmen sumatif, analisis hasil belajar, rekap nilai, program remedial dan pengayaan</li></ul>'
+];
+
 const SKOR_LABELS=['1 - Kurang','2 - Cukup','3 - Baik','4 - Sangat Baik'];
 const SKOR_CATATAN=['Belum terlaksana/tidak sesuai','Terlaksana sebagian kecil','Terlaksana dengan baik','Terlaksana dengan sangat baik dan konsisten'];
 
@@ -991,6 +1079,12 @@ function saveIndikatorData(data){
 localStorage.setItem(INDIKATOR_KEY,JSON.stringify(data));
 }
 function getIndikator(key){
+// RA selalu pakai konstanta tetap (tidak ada edit indikator untuk RA)
+if(isRAJenjang()){
+if(key==='perencanaan')return [...PERENCANAAN_RA];
+if(key==='pelaksanaan')return [...PELAKSANAAN_RA];
+if(key==='asesmen')return [...EVALUASI_RA];
+}
 var data=getIndikatorData();
 if(data&&data[key]!==undefined){
 // Migrasi: kalau pelaksanaan masih format object (lama), reset ke default array
@@ -1200,15 +1294,36 @@ render();
 }
 
 // ===== STATE =====
-let state={view:'dashboard',editId:null,formData:{},currentStep:0,detailIdx:null};
+let state={view:'dashboard',editId:null,formData:{},currentStep:0,detailIdx:null,jenjang:'umum'};
+
+// ===== JENJANG HELPERS =====
+function isRAView(v){return v==='supervisi-ra'||v==='supervisi-ra-form'||v==='form-ra'||v==='detail-ra'||v==='rekap-ra'||v==='cetak-ra'||v==='laporan-ra'||v==='guru-ra'||v==='madrasah-ra';}
+function isRAJenjang(){return typeof state!=='undefined'&&state&&state.jenjang==='ra';}
+function getActiveAppKey(){return isRAJenjang()?APP_KEY_RA:APP_KEY;}
+function getActiveGuruKey(){return isRAJenjang()?GURU_KEY_RA:GURU_KEY;}
+function getActiveMadrasahKey(){return isRAJenjang()?MADRASAH_KEY_RA:MADRASAH_KEY;}
+// Cross-module views (Kokurikuler/Ekstrakurikuler/Iklim) butuh akses ke semua madrasah (umum + RA)
+function isCrossModuleView(){
+var v=state&&state.view;
+if(!v)return false;
+return v.indexOf('kokurikuler')>-1||v.indexOf('ekstrakurikuler')>-1||v.indexOf('iklim')>-1;
+}
+function getAllMadrasahCombined(){
+var umum=[];try{umum=JSON.parse(localStorage.getItem(MADRASAH_KEY))||[]}catch(e){}
+var ra=[];try{ra=JSON.parse(localStorage.getItem(MADRASAH_KEY_RA))||[]}catch(e){}
+return umum.concat(ra.map(function(m){return Object.assign({},m,{_jenjang:'RA'})}));
+}
 
 // ===== STORAGE =====
-function getData(){try{return JSON.parse(localStorage.getItem(APP_KEY))||[]}catch(e){return[]}}
-function saveData(d){localStorage.setItem(APP_KEY,JSON.stringify(d))}
-function getMadrasah(){try{return JSON.parse(localStorage.getItem(MADRASAH_KEY))||[]}catch(e){return[]}}
-function saveMadrasah(d){localStorage.setItem(MADRASAH_KEY,JSON.stringify(d))}
-function getGuru(){try{return JSON.parse(localStorage.getItem(GURU_KEY))||[]}catch(e){return[]}}
-function saveGuru(d){localStorage.setItem(GURU_KEY,JSON.stringify(d))}
+function getData(){try{return JSON.parse(localStorage.getItem(getActiveAppKey()))||[]}catch(e){return[]}}
+function saveData(d){localStorage.setItem(getActiveAppKey(),JSON.stringify(d))}
+function getMadrasah(){
+if(isCrossModuleView())return getAllMadrasahCombined();
+try{return JSON.parse(localStorage.getItem(getActiveMadrasahKey()))||[]}catch(e){return[]}
+}
+function saveMadrasah(d){localStorage.setItem(getActiveMadrasahKey(),JSON.stringify(d))}
+function getGuru(){try{return JSON.parse(localStorage.getItem(getActiveGuruKey()))||[]}catch(e){return[]}}
+function saveGuru(d){localStorage.setItem(getActiveGuruKey(),JSON.stringify(d))}
 function getPengawas(){try{return JSON.parse(localStorage.getItem(PENGAWAS_KEY))||{}}catch(e){return{}}}
 function savePengawas(d){localStorage.setItem(PENGAWAS_KEY,JSON.stringify(d))}
 
@@ -1225,21 +1340,28 @@ function getPelaksanaanFlat(){return getIndikatorPelaksanaanFlat()}
 function showPenggalian(idx){
 var items=getPelaksanaanFlat();
 var title=items[idx]||'Aspek';
+var src=isRAJenjang()?PENGGALIAN_PELAKSANAAN_RA:PENGGALIAN_PELAKSANAAN;
 document.getElementById('modalTitle').textContent='Penggalian Data: '+(idx+1)+'. '+title;
-document.getElementById('modalContent').innerHTML=PENGGALIAN_PELAKSANAAN[idx]||'<p>Tidak ada data penggalian.</p>';
+document.getElementById('modalContent').innerHTML=src[idx]||'<p>Tidak ada data penggalian.</p>';
 document.getElementById('modalPenggalian').style.display='flex';
 }
 function showPenggalianPerencanaan(idx){
 var items=getIndikator('perencanaan');
 var title=items[idx]||'Aspek';
+var src=isRAJenjang()?PENGGALIAN_PERENCANAAN_RA:PENGGALIAN_PERENCANAAN;
 document.getElementById('modalTitle').textContent='Penggalian Data: '+(idx+1)+'. '+title;
-document.getElementById('modalContent').innerHTML=PENGGALIAN_PERENCANAAN[idx]||'<p>Tidak ada data penggalian.</p>';
+document.getElementById('modalContent').innerHTML=src[idx]||'<p>Tidak ada data penggalian.</p>';
 document.getElementById('modalPenggalian').style.display='flex';
 }
 function showPenggalianGeneric(key,idx){
 var items=getIndikator(key);
 var title=items[idx]||'Aspek';
-var data=(key==='perencanaan')?PENGGALIAN_PERENCANAAN:(key==='asesmen')?PENGGALIAN_ASESMEN:[];
+var data;
+if(isRAJenjang()){
+data=(key==='perencanaan')?PENGGALIAN_PERENCANAAN_RA:(key==='pelaksanaan')?PENGGALIAN_PELAKSANAAN_RA:(key==='asesmen')?PENGGALIAN_EVALUASI_RA:[];
+}else{
+data=(key==='perencanaan')?PENGGALIAN_PERENCANAAN:(key==='asesmen')?PENGGALIAN_ASESMEN:(key==='pelaksanaan')?PENGGALIAN_PELAKSANAAN:[];
+}
 document.getElementById('modalTitle').textContent='Penggalian Data: '+(idx+1)+'. '+title;
 document.getElementById('modalContent').innerHTML=data[idx]||'<p>Tidak ada data penggalian.</p>';
 document.getElementById('modalPenggalian').style.display='flex';
@@ -1264,10 +1386,11 @@ if(el)el.classList.toggle('open');
 }
 function navigate(view){
 state.view=view;state.editId=null;
+state.jenjang=isRAView(view)?'ra':'umum';
 document.querySelectorAll('.sidebar-menu li').forEach(function(li){li.classList.toggle('active',li.dataset.nav===view)});
 document.querySelectorAll('.submenu li').forEach(function(li){li.classList.toggle('active',li.dataset.nav===view)});
 if(window.innerWidth<768)document.getElementById('sidebar').classList.remove('open');
-if(view==='supervisi'){newForm();return;}
+if(view==='supervisi'||view==='supervisi-ra'){newForm();return;}
 render();
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
@@ -1279,11 +1402,17 @@ switch(state.view){
 case 'dashboard':app.innerHTML=renderDashboard();setTimeout(drawChart,100);break;
 case 'pengawas':app.innerHTML=renderPengawasPage();break;
 case 'madrasah':app.innerHTML=renderMadrasahPage();break;
+case 'madrasah-ra':app.innerHTML=renderMadrasahPage();break;
 case 'guru':app.innerHTML=renderGuruPage();break;
+case 'guru-ra':app.innerHTML=renderGuruPage();break;
 case 'supervisi':case 'form':app.innerHTML=renderForm();break;
+case 'supervisi-ra':case 'supervisi-ra-form':case 'form-ra':app.innerHTML=renderForm();break;
 case 'detail':app.innerHTML=renderDetail();break;
+case 'detail-ra':app.innerHTML=renderDetail();break;
 case 'rekap':app.innerHTML=renderRekapAllPage();break;
+case 'rekap-ra':app.innerHTML=renderRekapAllPage();break;
 case 'cetak':app.innerHTML=renderCetakPage();break;
+case 'cetak-ra':app.innerHTML=renderCetakPage();break;
 case 'kokurikuler':app.innerHTML=renderKokurikulerPage();break;
 case 'kokurikuler-form':app.innerHTML=renderKokurikulerForm(state.kokurikulerIdx);break;
 case 'rekap-kokurikuler':app.innerHTML=renderRekapKokurikulerPage();break;
@@ -1294,6 +1423,7 @@ case 'iklim-madrasah':app.innerHTML=renderIklimMadrasahPage();break;
 case 'iklim-madrasah-form':app.innerHTML=renderIklimMadrasahForm(state.iklimMadrasahIdx);break;
 case 'rekap-iklim-madrasah':app.innerHTML=renderRekapIklimMadrasahPage();break;
 case 'laporan':app.innerHTML=renderLaporanPage();break;
+case 'laporan-ra':app.innerHTML=renderLaporanPage();break;
 case 'laporan-kokurikuler':app.innerHTML=renderLaporanKokurikulerPage();break;
 case 'laporan-kokurikuler-madrasah':app.innerHTML=renderLaporanKokurikulerPerMadrasahPage();break;
 case 'laporan-kokurikuler-kkma':app.innerHTML=renderLaporanKokurikulerPerKKMAPage();break;
@@ -1316,7 +1446,8 @@ if(titleEl){
 var isKoku=(state.view==='kokurikuler'||state.view==='kokurikuler-form'||state.view==='rekap-kokurikuler'||state.view==='laporan-kokurikuler'||state.view==='laporan-kokurikuler-madrasah'||state.view==='laporan-kokurikuler-kkma');
 var isEkstra=(state.view==='ekstrakurikuler'||state.view==='ekstrakurikuler-form'||state.view==='rekap-ekstrakurikuler'||state.view==='laporan-ekstrakurikuler'||state.view==='laporan-ekstrakurikuler-madrasah'||state.view==='laporan-ekstrakurikuler-kkma');
 var isIklim=(state.view==='iklim-madrasah'||state.view==='iklim-madrasah-form'||state.view==='rekap-iklim-madrasah'||state.view==='laporan-iklim-madrasah'||state.view==='laporan-iklim-madrasah-madrasah'||state.view==='laporan-iklim-madrasah-kkma');
-titleEl.innerHTML=isKoku?'\u{1F4CB} Supervisi Kokurikuler':isEkstra?'\u{1F4CB} Supervisi Ekstrakurikuler':isIklim?'\u{1F3EB} Iklim Madrasah':'\u{1F4CB} Supervisi Pembelajaran';
+var isRA=(state.view==='supervisi-ra'||state.view==='supervisi-ra-form'||state.view==='form-ra'||state.view==='detail-ra'||state.view==='rekap-ra'||state.view==='cetak-ra'||state.view==='laporan-ra'||state.view==='guru-ra'||state.view==='madrasah-ra');
+titleEl.innerHTML=isKoku?'\u{1F4CB} Supervisi Kokurikuler':isEkstra?'\u{1F4CB} Supervisi Ekstrakurikuler':isIklim?'\u{1F3EB} Iklim Madrasah':isRA?(state.view==='guru-ra'?'\u{1F468}\u200D\u{1F393} Data Guru RA':state.view==='madrasah-ra'?'\u{1F3EB} Data Madrasah RA':'\u{1F331} Supervisi Pembelajaran RA'):'\u{1F4CB} Supervisi Pembelajaran';
 }
 app.classList.add('fade-in');
 setTimeout(function(){app.classList.remove('fade-in')},300);
@@ -1417,12 +1548,12 @@ rows+='</td></tr>';
 });
 var html='<div class="card">';
 html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">';
-html+='<h2>Data Madrasah</h2>';
-html+='<button class="btn btn-primary" onclick="showMadrasahModal()">+ Tambah Madrasah</button> ';
+html+='<h2>'+(isRAJenjang()?'Data Madrasah RA':'Data Madrasah')+'</h2>';
+html+='<button class="btn btn-primary" onclick="showMadrasahModal()">+ Tambah Madrasah'+(isRAJenjang()?' RA':'')+'</button> ';
 html+='<button class="btn btn-info" onclick="importMadrasahExcel()">&#128196; Import Excel</button> ';
 html+='<button class="btn btn-secondary" onclick="downloadTemplateMadrasah()">&#128229; Template Excel</button></div>';
 html+='<input type="file" id="importMadrasahFile" accept=".xlsx,.xls" style="display:none" onchange="handleImportMadrasah(event)">';
-if(data.length===0){html+='<div class="empty-state"><p>Belum ada data madrasah.</p></div>';}
+if(data.length===0){html+='<div class="empty-state"><p>Belum ada data madrasah'+(isRAJenjang()?' RA':'')+'.</p></div>';}
 else{
 html+='<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>No</th><th>Nama Madrasah</th><th>NPSN</th><th>Alamat</th><th>Kab/Kota</th><th>Kepala Madrasah</th><th>Aksi</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -1435,7 +1566,7 @@ function showMadrasahModal(idx){
 var m=(idx!==undefined)?getMadrasah()[idx]:{};
 var isEdit=(idx!==undefined);
 var modal='<div class="modal-overlay" style="display:flex" onclick="if(event.target===this)closeModal()">';
-modal+='<div class="modal"><h3>'+(isEdit?'Edit':'Tambah')+' Madrasah</h3>';
+modal+='<div class="modal"><h3>'+(isEdit?'Edit':'Tambah')+' '+(isRAJenjang()?'Madrasah RA':'Madrasah')+'</h3>';
 modal+='<div class="form-group"><label>Nama Madrasah</label><input id="m-nama" value="'+escHtml(m.nama||'')+'"></div>';
 modal+='<div class="form-group"><label>NPSN</label><input id="m-npsn" value="'+escHtml(m.npsn||'')+'"></div>';
 modal+='<div class="form-group"><label>Alamat</label><input id="m-alamat" value="'+escHtml(m.alamat||'')+'"></div>';
@@ -1529,9 +1660,9 @@ rows+='</td></tr>';
 });
 var html='<div class="card">';
 html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">';
-html+='<h2>Data Guru</h2>';
-html+='<button class="btn btn-primary" onclick="showGuruModal()">+ Tambah Guru</button></div>';
-if(data.length===0){html+='<div class="empty-state"><p>Belum ada data guru.</p></div>';}
+html+='<h2>'+(isRAJenjang()?'Data Guru RA':'Data Guru')+'</h2>';
+html+='<button class="btn btn-primary" onclick="showGuruModal()">+ Tambah Guru'+(isRAJenjang()?' RA':'')+'</button></div>';
+if(data.length===0){html+='<div class="empty-state"><p>Belum ada data guru'+(isRAJenjang()?' RA':'')+'.</p></div>';}
 else{
 html+='<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>No</th><th>Nama Guru</th><th>NIP</th><th>Mata Pelajaran</th><th>Madrasah</th><th>Aksi</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -1547,7 +1678,7 @@ var madrasahList=getMadrasah();
 var opts='<option value="">-- Pilih Madrasah --</option>';
 madrasahList.forEach(function(m){opts+='<option value="'+escHtml(m.nama)+'" '+(g.madrasah===m.nama?'selected':'')+'>'+escHtml(m.nama)+'</option>';});
 var modal='<div class="modal-overlay" style="display:flex" onclick="if(event.target===this)closeModal()">';
-modal+='<div class="modal"><h3>'+(isEdit?'Edit':'Tambah')+' Guru</h3>';
+modal+='<div class="modal"><h3>'+(isEdit?'Edit':'Tambah')+' '+(isRAJenjang()?'Guru RA':'Guru')+'</h3>';
 modal+='<div class="form-group"><label>Nama Guru</label><input id="g-nama" value="'+escHtml(g.nama||'')+'"></div>';
 modal+='<div class="form-group"><label>NIP</label><input id="g-nip" value="'+escHtml(g.nip||'')+'"></div>';
 modal+='<div class="form-group"><label>Mata Pelajaran</label><input id="g-mapel" value="'+escHtml(g.mataPelajaran||'')+'"></div>';
@@ -1807,7 +1938,7 @@ html+='<table class="instrumen-table"><thead><tr><th class="col-no">No</th><th c
 items.forEach(function(item,i){
 var score=(d.scores&&d.scores[i]!==undefined)?d.scores[i]:null;
 var cat=(d.catatan&&d.catatan[i])?d.catatan[i]:getAutoCatatan(score);
-var penggalian=(key==='perencanaan'&&PENGGALIAN_PERENCANAAN[i])?true:(key==='asesmen'&&PENGGALIAN_ASESMEN[i])?true:false;
+var penggalian=(key==='perencanaan')?(isRAJenjang()?(PENGGALIAN_PERENCANAAN_RA[i]?true:false):(PENGGALIAN_PERENCANAAN[i]?true:false)):(key==='asesmen')?(isRAJenjang()?(PENGGALIAN_EVALUASI_RA[i]?true:false):(PENGGALIAN_ASESMEN[i]?true:false)):false;
 html+='<tr><td class="col-no">'+(i+1)+'</td><td class="col-aspek'+(penggalian?' clickable':'')+'"'+(penggalian?' onclick="showPenggalianGeneric(\''+key+'\','+i+')" title="Klik untuk lihat penggalian data"':'')+'>'+(penggalian?'\u{1F50D} ':'')+item+'</td>';
 for(var s=0;s<4;s++){
 html+='<td class="col-skor"><button class="skor-radio '+(score===s?'selected':'')+'" onclick="setSkor(\''+key+'\','+i+','+s+')">'+(score===s?'&#9679;':'&#9675;')+'</button></td>';
@@ -1848,7 +1979,7 @@ pelItems.forEach(function(item){
 var gi=idx;
 var score=(d.scores&&d.scores[gi]!==undefined)?d.scores[gi]:null;
 var cat=(d.catatan&&d.catatan[gi])?d.catatan[gi]:getAutoCatatan(score);
-var hasInfo=PENGGALIAN_PELAKSANAAN[gi]?true:false;
+var hasInfo=(isRAJenjang()?PENGGALIAN_PELAKSANAAN_RA[gi]:PENGGALIAN_PELAKSANAAN[gi])?true:false;
 html+='<tr><td class="col-no">'+(gi+1)+'</td><td class="col-aspek'+(hasInfo?' clickable':'')+'"'+(hasInfo?' onclick="showPenggalian('+gi+')" title="Klik untuk lihat penggalian data"':'')+'>'+(hasInfo?'\u{1F50D} ':'')+item+'</td>';
 for(var s=0;s<4;s++){
 html+='<td class="col-skor"><button class="skor-radio '+(score===s?'selected':'')+'" onclick="setSkor(\'pelaksanaan\','+gi+','+s+')">'+(score===s?'&#9679;':'&#9675;')+'</button></td>';
@@ -2061,7 +2192,7 @@ rekapObj.tindakLanjut=rtl;
 function renderDetail(){
 var data=getData();
 var d=data[state.detailIdx];
-if(!d){state.view='dashboard';render();return '';}
+if(!d){state.view=isRAJenjang()?'supervisi-ra':'dashboard';render();return '';}
 var komps=[
 {key:'perencanaan',label:'Perencanaan Pembelajaran',max:getIndikator('perencanaan').length*4,items:getIndikator('perencanaan')},
 {key:'pelaksanaan',label:'Pelaksanaan Pembelajaran',max:getIndikatorPelaksanaanFlat().length*4,items:getIndikatorPelaksanaanFlat()},
@@ -2100,12 +2231,12 @@ return html;
 function newForm(){
 var chk=canCreateSupervisi();
 if(!chk.ok){alert('⛔ '+chk.reason);return;}
-state.view='form';state.currentStep=0;state.editId=null;
+state.view=isRAJenjang()?'form-ra':'form';state.currentStep=0;state.editId=null;
 var pengawas=getPengawas();
 state.formData={identitas:{namaSupervisor:pengawas.nama||'',nipSupervisor:pengawas.nip||'',jabatanSupervisor:pengawas.jabatan||''},perencanaan:{scores:[],catatan:[],manualCatatan:[]},pelaksanaan:{scores:[],catatan:[],manualCatatan:[]},asesmen:{scores:[],catatan:[],manualCatatan:[]},rekap:{}};
 render();
 }
-function backToDashboard(){state.view='dashboard';render()}
+function backToDashboard(){state.view=isRAJenjang()?'supervisi-ra':'dashboard';if(state.view==='dashboard')state.jenjang='umum';render()}
 function nextStep(){if(state.currentStep<4)state.currentStep++;render()}
 function prevStep(){if(state.currentStep>0)state.currentStep--;render()}
 
@@ -2150,13 +2281,13 @@ if(!chk.ok){alert('⛔ '+chk.reason);return;}
 }
 if(state.editId!==null){data[state.editId]=state.formData;}
 else{data.push(state.formData);}
-saveData(data);state.view='dashboard';render();
+saveData(data);state.view=isRAJenjang()?'supervisi-ra':'dashboard';render();
 }
 
 function editItem(idx){
 var data=getData();
 state.formData=JSON.parse(JSON.stringify(data[idx]));
-state.editId=idx;state.view='form';state.currentStep=0;render();
+state.editId=idx;state.view=isRAJenjang()?'form-ra':'form';state.currentStep=0;render();
 }
 
 function deleteItem(idx){
@@ -2164,7 +2295,7 @@ if(!confirm('Hapus data supervisi ini?'))return;
 var data=getData();data.splice(idx,1);saveData(data);render();
 }
 
-function viewDetail(idx){state.detailIdx=idx;state.view='detail';render();}
+function viewDetail(idx){state.detailIdx=idx;state.view=isRAJenjang()?'detail-ra':'detail';render();}
 
 // ===== CETAK HASIL SUPERVISI PAGE =====
 function renderCetakPage(){
@@ -4953,12 +5084,15 @@ return html;
 }
 function exportBackup(){
 var backup={
-version:'1.0',
+version:'1.1',
 date:new Date().toISOString(),
 pengawas:getPengawas(),
-madrasah:getMadrasah(),
-guru:getGuru(),
-supervisi:getData(),
+madrasah:(function(){try{return JSON.parse(localStorage.getItem(MADRASAH_KEY))||[]}catch(e){return[]}})(),
+guru:(function(){try{return JSON.parse(localStorage.getItem(GURU_KEY))||[]}catch(e){return[]}})(),
+supervisi:(function(){try{return JSON.parse(localStorage.getItem(APP_KEY))||[]}catch(e){return[]}})(),
+madrasahRA:(function(){try{return JSON.parse(localStorage.getItem(MADRASAH_KEY_RA))||[]}catch(e){return[]}})(),
+guruRA:(function(){try{return JSON.parse(localStorage.getItem(GURU_KEY_RA))||[]}catch(e){return[]}})(),
+supervisiRA:(function(){try{return JSON.parse(localStorage.getItem(APP_KEY_RA))||[]}catch(e){return[]}})(),
 kokurikuler:(function(){try{return JSON.parse(localStorage.getItem(KOKURIKULER_KEY))||[]}catch(e){return[]}})(),
 ekstrakurikuler:(function(){try{return JSON.parse(localStorage.getItem(EKSTRAKURIKULER_KEY))||[]}catch(e){return[]}})(),
 iklimMadrasah:(function(){try{return JSON.parse(localStorage.getItem(IKLIM_MADRASAH_KEY))||[]}catch(e){return[]}})(),
@@ -4982,9 +5116,12 @@ reader.onload=function(e){
 try{
 var backup=JSON.parse(e.target.result);
 if(backup.pengawas)savePengawas(backup.pengawas);
-if(backup.madrasah)saveMadrasah(backup.madrasah);
-if(backup.guru)saveGuru(backup.guru);
-if(backup.supervisi)saveData(backup.supervisi);
+if(backup.madrasah)localStorage.setItem(MADRASAH_KEY,JSON.stringify(backup.madrasah));
+if(backup.guru)localStorage.setItem(GURU_KEY,JSON.stringify(backup.guru));
+if(backup.supervisi)localStorage.setItem(APP_KEY,JSON.stringify(backup.supervisi));
+if(backup.madrasahRA)localStorage.setItem(MADRASAH_KEY_RA,JSON.stringify(backup.madrasahRA));
+if(backup.guruRA)localStorage.setItem(GURU_KEY_RA,JSON.stringify(backup.guruRA));
+if(backup.supervisiRA)localStorage.setItem(APP_KEY_RA,JSON.stringify(backup.supervisiRA));
 if(backup.kokurikuler)localStorage.setItem(KOKURIKULER_KEY,JSON.stringify(backup.kokurikuler));
 if(backup.ekstrakurikuler)localStorage.setItem(EKSTRAKURIKULER_KEY,JSON.stringify(backup.ekstrakurikuler));
 if(backup.iklimMadrasah)localStorage.setItem(IKLIM_MADRASAH_KEY,JSON.stringify(backup.iklimMadrasah));
