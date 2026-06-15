@@ -305,6 +305,18 @@ if(s.username==='admin')return{nama:'Administrator',username:'admin',tier:'full'
 var users=getUsers();
 return users.find(function(u){return u.username===s.username})||null;
 }
+function isTrialLockedNow(){
+var t=getTrialStatus();
+return t.isTrial&&t.isExpired;
+}
+var _lastLockToast=0;
+function notifyTrialLockedNow(){
+var now=Date.now();
+if(now-_lastLockToast<1500)return;
+_lastLockToast=now;
+alert('Trial sudah habis. Aktivasi kode FULL untuk menyimpan / mengubah data.');
+}
+
 function getTrialStatus(){
 // returns {tier:'trial|full|admin', isTrial, isExpired, daysLeft, supervisiCount, limitReached}
 var u=getCurrentUser();
@@ -1324,16 +1336,16 @@ return umum.concat(ra.map(function(m){return Object.assign({},m,{_jenjang:'RA'})
 
 // ===== STORAGE =====
 function getData(){try{return JSON.parse(localStorage.getItem(getActiveAppKey()))||[]}catch(e){return[]}}
-function saveData(d){localStorage.setItem(getActiveAppKey(),JSON.stringify(d))}
+function saveData(d){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(getActiveAppKey(),JSON.stringify(d));return true;}
 function getMadrasah(){
 if(isCrossModuleView())return getAllMadrasahCombined();
 try{return JSON.parse(localStorage.getItem(getActiveMadrasahKey()))||[]}catch(e){return[]}
 }
-function saveMadrasah(d){localStorage.setItem(getActiveMadrasahKey(),JSON.stringify(d))}
+function saveMadrasah(d){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(getActiveMadrasahKey(),JSON.stringify(d));return true;}
 function getGuru(){try{return JSON.parse(localStorage.getItem(getActiveGuruKey()))||[]}catch(e){return[]}}
-function saveGuru(d){localStorage.setItem(getActiveGuruKey(),JSON.stringify(d))}
+function saveGuru(d){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(getActiveGuruKey(),JSON.stringify(d));return true;}
 function getPengawas(){try{return JSON.parse(localStorage.getItem(PENGAWAS_KEY))||{}}catch(e){return{}}}
-function savePengawas(d){localStorage.setItem(PENGAWAS_KEY,JSON.stringify(d))}
+function savePengawas(d){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(PENGAWAS_KEY,JSON.stringify(d));return true;}
 
 // ===== UTILITY =====
 function getPredikat(pct){if(pct>=91)return'Sangat Baik';if(pct>=81)return'Baik';if(pct>=71)return'Cukup';return'Kurang'}
@@ -2737,7 +2749,7 @@ state.formData=backup;
 
 // ===== KOKURIKULER =====
 function getKokurikuler(){try{return JSON.parse(localStorage.getItem(KOKURIKULER_KEY))||[]}catch(e){return[]}}
-function saveKokurikuler(data){localStorage.setItem(KOKURIKULER_KEY,JSON.stringify(data))}
+function saveKokurikuler(data){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(KOKURIKULER_KEY,JSON.stringify(data));return true;}
 
 function renderKokurikulerPage(){
 var data=getKokurikuler();
@@ -3118,7 +3130,7 @@ setTimeout(function(){w.print();},500);
 // ===== EKSTRAKURIKULER =====
 const EKSTRAKURIKULER_KEY='supervisi_ekstrakurikuler';
 function getEkstrakurikuler(){try{return JSON.parse(localStorage.getItem(EKSTRAKURIKULER_KEY))||[];}catch(e){return [];}}
-function saveEkstrakurikuler(data){localStorage.setItem(EKSTRAKURIKULER_KEY,JSON.stringify(data));}
+function saveEkstrakurikuler(data){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(EKSTRAKURIKULER_KEY,JSON.stringify(data));return true;}
 
 function renderEkstrakurikulerPage(){
 var data=getEkstrakurikuler();
@@ -3487,7 +3499,7 @@ const PENGGALIAN_IKLIM_MADRASAH=[
 '<b>Melalui pengamatan tampak:</b><ul><li>Kondisi bangunan dan fasilitas belajar aman, jalur evakuasi, titik kumpul, alat pemadam kebakaran, papan petunjuk keselamatan, ventilasi</li></ul><b>Telaah Dokumen:</b><ul><li>Kurikulum kebencanaan, SOP/manajemen tata kelola risiko kesiapsiagaan bencana</li><li>Data sarana prasarana, hasil pemeriksaan keamanan dan pemeliharaan bangunan, dan dokumentasi fasilitas keselamatan</li><li>Dokumen kemitraan dan dokumentasi simulasi mitigasi kebencanaan</li></ul>'
 ];
 function getIklimMadrasah(){try{return JSON.parse(localStorage.getItem(IKLIM_MADRASAH_KEY))||[];}catch(e){return [];}}
-function saveIklimMadrasah(data){localStorage.setItem(IKLIM_MADRASAH_KEY,JSON.stringify(data));}
+function saveIklimMadrasah(data){if(isTrialLockedNow()){notifyTrialLockedNow();return false;}localStorage.setItem(IKLIM_MADRASAH_KEY,JSON.stringify(data));return true;}
 
 ﻿function renderIklimMadrasahPage(){
 var data=getIklimMadrasah();
