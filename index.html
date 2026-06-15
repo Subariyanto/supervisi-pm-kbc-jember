@@ -2650,7 +2650,10 @@ doc.text('Supervisor: '+headerInfo.namaSupervisor+'    Tanggal: '+headerInfo.tan
 return y+22;
 }
 
+function blockExportIfTrial(label){try{var t=getTrialStatus();if(!t||!t.isTrial)return false;var msg=(label?label+': ':'')+'Fitur Export hanya tersedia untuk akun FULL. Cetak Preview (Ctrl+P) tetap bisa dengan watermark TRIAL.';alert(msg);return true;}catch(e){return false;}}
+
 function exportInstrumenPDF(key){
+if(blockExportIfTrial('Export PDF Instrumen'))return;
 if(typeof window.jspdf==='undefined'){alert('jsPDF belum dimuat. Pastikan koneksi internet tersedia.');return;}
 var jsPDF=window.jspdf.jsPDF;
 var doc=new jsPDF('p','mm','a4');
@@ -2702,6 +2705,7 @@ doc.save('Supervisi_'+info.label.replace(/ /g,'_')+'_'+(state.formData.identitas
 }
 
 function exportRekapPDF(){
+if(blockExportIfTrial('Export PDF Rekap'))return;
 if(typeof window.jspdf==='undefined'){alert('jsPDF belum dimuat. Pastikan koneksi internet tersedia.');return;}
 var jsPDF=window.jspdf.jsPDF;
 var doc=new jsPDF('p','mm','a4');
@@ -2756,6 +2760,7 @@ doc.save('Rekap_Supervisi_'+(state.formData.identitas&&state.formData.identitas.
 }
 
 function exportDetailPDF(idx){
+if(blockExportIfTrial('Export PDF Detail'))return;
 var data=getData();
 var d=data[idx];
 if(!d)return;
