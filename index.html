@@ -2575,6 +2575,23 @@ function applyTrialPrintMark(){
 var t=getTrialStatus();
 document.body.classList.toggle('is-trial-print',t.isTrial);
 }
+function stampPdfTrial(doc){
+var t=getTrialStatus();if(!t.isTrial||!doc)return;
+try{
+var total=doc.internal.getNumberOfPages();
+var w=doc.internal.pageSize.getWidth(),h=doc.internal.pageSize.getHeight();
+for(var i=1;i<=total;i++){
+doc.setPage(i);
+try{if(doc.GState&&doc.setGState)doc.setGState(new doc.GState({opacity:0.18}));}catch(e){}
+doc.setTextColor(220,38,38);doc.setFont('helvetica','bold');doc.setFontSize(72);
+doc.text('TRIAL',w/2,h/2,{align:'center',angle:30});
+try{if(doc.GState&&doc.setGState)doc.setGState(new doc.GState({opacity:0.7}));}catch(e){}
+doc.setFontSize(8);
+doc.text('DOKUMEN VERSI TRIAL — TIDAK SAH UNTUK PENGGUNAAN RESMI',w/2,6,{align:'center'});
+try{if(doc.GState&&doc.setGState)doc.setGState(new doc.GState({opacity:1}));}catch(e){}
+}
+}catch(e){console.warn('stampPdfTrial:',e);}
+}
 function renderTrialBanner(){
 var t=getTrialStatus();
 if(!t.isTrial)return'';
@@ -2680,6 +2697,7 @@ var pct=max>0?(sum/max)*100:0;
 var finalY=doc.lastAutoTable.finalY+8;
 doc.setFontSize(9);
 doc.text('Total Skor: '+sum+'/'+max+' ('+pct.toFixed(1)+'%) - '+getPredikat(pct),14,finalY);
+stampPdfTrial(doc);
 doc.save('Supervisi_'+info.label.replace(/ /g,'_')+'_'+(state.formData.identitas&&state.formData.identitas.namaGuru?state.formData.identitas.namaGuru:'')+ '.pdf');
 }
 
@@ -2733,6 +2751,7 @@ y+=5;
 if(y>270){doc.addPage();y=15;}
 }
 });
+stampPdfTrial(doc);
 doc.save('Rekap_Supervisi_'+(state.formData.identitas&&state.formData.identitas.namaGuru?state.formData.identitas.namaGuru:'')+'.pdf');
 }
 
